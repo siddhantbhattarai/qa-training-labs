@@ -6,75 +6,7 @@ const options = {
     info: {
       title: "QA Training Lab API",
       version: "1.0.0",
-      description: `
-# Welcome to the QA Training Lab API 🧪
-
-This is an **intentionally buggy** e-commerce API designed for QA engineers to practice testing skills.
-
----
-
-## 🎯 Purpose
-
-This API contains **58+ intentional bugs** across different categories:
-- Validation gaps
-- Authentication flaws  
-- Authorization issues (IDOR)
-- Business logic errors
-- Inconsistent error handling
-- Security vulnerabilities
-- Performance issues
-
----
-
-## 🚀 Getting Started
-
-### 1. Seed the Database
-First, call \`POST /api/seed\` to populate test data including:
-- Admin user: \`admin@qalab.com\` / \`Admin@1234\`
-- Test user: \`john@example.com\` / \`Password123\`
-- Sample products
-
-### 2. Authenticate
-Call \`POST /api/auth/login\` with credentials to get a JWT token.
-
-### 3. Authorize
-Click the **Authorize** button above and enter:
-\`\`\`
-Bearer <your_access_token>
-\`\`\`
-
-### 4. Start Testing!
-Explore endpoints and try to find bugs. Check the Bug Hunt page for hints.
-
----
-
-## 🔐 Authentication
-
-All protected endpoints require a Bearer token in the Authorization header:
-\`\`\`
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-\`\`\`
-
----
-
-## 📚 Resources
-
-- **Bug Hunt Challenge**: Find all 58+ bugs at \`/pages/bugs.html\`
-- **Learning Guide**: QA tutorials at \`/pages/guide.html\`
-- **Postman Collection**: Available in \`/postman\` folder
-      `,
-      contact: {
-        name: "QA Lab Support",
-        url: "https://github.com/siddhantbhattarai/qa-training-labs",
-      },
-      license: {
-        name: "MIT",
-        url: "https://opensource.org/licenses/MIT",
-      },
-    },
-    externalDocs: {
-      description: "View Bug Hunt Challenge",
-      url: "/pages/bugs.html",
+      description: "Intentionally buggy API for QA practice. Use POST /api/seed to start, then login with admin@qalab.com / Admin@1234",
     },
     servers: [
       {
