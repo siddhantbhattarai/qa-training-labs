@@ -6,6 +6,78 @@
     <title>Bug Hunt - QA Training Lab</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .bugs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .bug-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bug-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .bug-card.found {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border-color: var(--secondary);
+        }
+
+        .bug-card.found .bug-title {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-section select {
+            min-width: 150px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mini-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .mini-stat .number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .mini-stat .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mini-stat.critical .number { color: #ef4444; }
+        .mini-stat.high .number { color: #f97316; }
+        .mini-stat.medium .number { color: #eab308; }
+        .mini-stat.low .number { color: #22c55e; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -28,9 +100,10 @@
     <main class="page-container">
         <div class="dashboard-header">
             <h1>🐛 Bug Hunt Challenge</h1>
-            <p>Find intentional bugs in the API and practice your QA skills</p>
+            <p>Find intentional bugs in the API and practice your QA skills. Click on a bug card to mark it as found!</p>
         </div>
 
+        <!-- Progress Section -->
         <div class="bug-progress">
             <h3>Your Progress</h3>
             <div class="progress-bar">
@@ -40,33 +113,66 @@
             <button class="btn btn-outline btn-sm" onclick="resetProgress()" style="margin-top: 1rem;">Reset Progress</button>
         </div>
 
-        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-            <select id="categoryFilter" class="form-input" style="width: auto;" onchange="filterBugs()">
-                <option value="">All Categories</option>
-                <option value="validation">Validation</option>
-                <option value="authentication">Authentication</option>
-                <option value="authorization">Authorization</option>
-                <option value="business-logic">Business Logic</option>
-                <option value="error-handling">Error Handling</option>
-                <option value="security">Security</option>
-                <option value="performance">Performance</option>
-            </select>
-            <select id="severityFilter" class="form-input" style="width: auto;" onchange="filterBugs()">
-                <option value="">All Severities</option>
-                <option value="critical">Critical</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-            </select>
-            <select id="statusFilter" class="form-input" style="width: auto;" onchange="filterBugs()">
-                <option value="">All Status</option>
-                <option value="found">Found</option>
-                <option value="notfound">Not Found</option>
-            </select>
+        <!-- Stats by Severity -->
+        <div class="stats-row">
+            <div class="mini-stat critical">
+                <div class="number" id="criticalCount">0</div>
+                <div class="label">Critical</div>
+            </div>
+            <div class="mini-stat high">
+                <div class="number" id="highCount">0</div>
+                <div class="label">High</div>
+            </div>
+            <div class="mini-stat medium">
+                <div class="number" id="mediumCount">0</div>
+                <div class="label">Medium</div>
+            </div>
+            <div class="mini-stat low">
+                <div class="number" id="lowCount">0</div>
+                <div class="label">Low</div>
+            </div>
+            <div class="mini-stat">
+                <div class="number" id="foundPercent">0%</div>
+                <div class="label">Complete</div>
+            </div>
         </div>
 
+        <!-- Filters -->
+        <div class="filter-section">
+            <select id="categoryFilter" class="form-input" onchange="filterBugs()">
+                <option value="">All Categories</option>
+                <option value="validation">🔍 Validation</option>
+                <option value="authentication">🔐 Authentication</option>
+                <option value="authorization">🛡️ Authorization</option>
+                <option value="business-logic">💼 Business Logic</option>
+                <option value="error-handling">⚠️ Error Handling</option>
+                <option value="security">🔒 Security</option>
+                <option value="performance">⚡ Performance</option>
+            </select>
+            <select id="severityFilter" class="form-input" onchange="filterBugs()">
+                <option value="">All Severities</option>
+                <option value="critical">🔴 Critical</option>
+                <option value="high">🟠 High</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="low">🟢 Low</option>
+            </select>
+            <select id="statusFilter" class="form-input" onchange="filterBugs()">
+                <option value="">All Status</option>
+                <option value="found">✅ Found</option>
+                <option value="notfound">❌ Not Found</option>
+            </select>
+            <span id="resultCount" style="color: var(--text-muted); font-size: 0.9rem;"></span>
+        </div>
+
+        <!-- Bug Cards Grid -->
         <div id="bugsContainer" class="bugs-grid"></div>
     </main>
+
+    <footer class="footer" style="margin-top: 3rem;">
+        <div class="footer-content">
+            <p class="footer-text">💡 Tip: Use Postman or the Swagger docs to test each bug. Click a card to mark it as found!</p>
+        </div>
+    </footer>
 
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
@@ -91,7 +197,7 @@
             { id: 'BUG-013', category: 'authentication', severity: 'medium', title: 'Refresh token reusable', hint: 'Use the same refresh token multiple times', endpoint: 'POST /api/auth/refresh' },
             
             // Authorization Bugs
-            { id: 'BUG-014', category: 'authorization', severity: 'critical', title: 'User can access other user orders', hint: 'Try accessing another user\'s order by ID', endpoint: 'GET /api/orders/:id' },
+            { id: 'BUG-014', category: 'authorization', severity: 'critical', title: 'User can access other user orders', hint: 'Try accessing another user\'s order by ID (IDOR)', endpoint: 'GET /api/orders/:id' },
             { id: 'BUG-015', category: 'authorization', severity: 'critical', title: 'User can modify other user cart', hint: 'Try updating cart items using different user IDs', endpoint: 'PUT /api/cart' },
             { id: 'BUG-016', category: 'authorization', severity: 'high', title: 'Non-admin can create products', hint: 'Create a product without admin role', endpoint: 'POST /api/products' },
             { id: 'BUG-017', category: 'authorization', severity: 'high', title: 'User can cancel any order', hint: 'Try cancelling an order that belongs to another user', endpoint: 'PUT /api/orders/:id/cancel' },
@@ -117,22 +223,22 @@
             { id: 'BUG-033', category: 'error-handling', severity: 'low', title: 'HTML returned instead of JSON for 404', hint: 'Access a non-existent route and check Content-Type', endpoint: 'GET /api/nonexistent' },
             
             // Security Bugs
-            { id: 'BUG-034', category: 'security', severity: 'critical', title: 'SQL/NoSQL injection possible', hint: 'Try sending {"$gt": ""} in email field during login', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-034', category: 'security', severity: 'critical', title: 'NoSQL injection possible', hint: 'Try sending {"$gt": ""} in email field during login', endpoint: 'POST /api/auth/login' },
             { id: 'BUG-035', category: 'security', severity: 'high', title: 'Sensitive data in response', hint: 'Check if password hash is returned in user responses', endpoint: 'GET /api/users/profile' },
-            { id: 'BUG-036', category: 'security', severity: 'medium', title: 'No CORS restrictions', hint: 'Check Access-Control-Allow-Origin header', endpoint: 'Any endpoint' },
+            { id: 'BUG-036', category: 'security', severity: 'medium', title: 'No CORS restrictions', hint: 'Check Access-Control-Allow-Origin header value', endpoint: 'Any endpoint' },
             { id: 'BUG-037', category: 'security', severity: 'high', title: 'JWT secret too weak', hint: 'Try common secrets or decode JWT to check algorithm', endpoint: 'POST /api/auth/login' },
             { id: 'BUG-038', category: 'security', severity: 'medium', title: 'User enumeration via registration', hint: 'Register existing email - does error reveal user exists?', endpoint: 'POST /api/auth/register' },
-            { id: 'BUG-039', category: 'security', severity: 'medium', title: 'User enumeration via login', hint: 'Login with non-existent email - different error than wrong password?', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-039', category: 'security', severity: 'medium', title: 'User enumeration via login', hint: 'Login with non-existent email vs wrong password - different errors?', endpoint: 'POST /api/auth/login' },
             { id: 'BUG-040', category: 'security', severity: 'high', title: 'Mass assignment vulnerability', hint: 'Try setting role:"admin" during registration', endpoint: 'POST /api/auth/register' },
             
             // Performance Bugs
             { id: 'BUG-041', category: 'performance', severity: 'medium', title: 'No pagination on products list', hint: 'Request all products - does it return thousands at once?', endpoint: 'GET /api/products' },
             { id: 'BUG-042', category: 'performance', severity: 'low', title: 'N+1 query problem', hint: 'List orders - check if each item triggers separate DB query', endpoint: 'GET /api/orders' },
             { id: 'BUG-043', category: 'performance', severity: 'medium', title: 'No request size limit', hint: 'Send very large JSON body (1MB+) to endpoints', endpoint: 'POST /api/products' },
-            { id: 'BUG-044', category: 'performance', severity: 'low', title: 'Slow regex in search', hint: 'Search with complex regex pattern - check response time', endpoint: 'GET /api/products?search=.*.*.*.*' },
+            { id: 'BUG-044', category: 'performance', severity: 'low', title: 'Slow regex in search', hint: 'Search with complex regex pattern - check response time', endpoint: 'GET /api/products?search=.*' },
             
             // Additional Validation Bugs
-            { id: 'BUG-045', category: 'validation', severity: 'medium', title: 'Special characters in name not sanitized', hint: 'Use <script>alert(1)</script> as product name', endpoint: 'POST /api/products' },
+            { id: 'BUG-045', category: 'validation', severity: 'medium', title: 'XSS in product name not sanitized', hint: 'Use HTML/script tags as product name (check stored value)', endpoint: 'POST /api/products' },
             { id: 'BUG-046', category: 'validation', severity: 'low', title: 'Unicode characters cause issues', hint: 'Use emoji or RTL characters in product names', endpoint: 'POST /api/products' },
             { id: 'BUG-047', category: 'validation', severity: 'medium', title: 'Price accepts string values', hint: 'Set price to "free" or "NaN"', endpoint: 'POST /api/products' },
             { id: 'BUG-048', category: 'validation', severity: 'low', title: 'Decimal quantities allowed', hint: 'Add 1.5 items to cart', endpoint: 'POST /api/cart' },
@@ -156,27 +262,58 @@
 
         let foundBugs = JSON.parse(localStorage.getItem('qa_lab_bugs_found') || '[]');
 
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'validation': '🔍',
+                'authentication': '🔐',
+                'authorization': '🛡️',
+                'business-logic': '💼',
+                'error-handling': '⚠️',
+                'security': '🔒',
+                'performance': '⚡'
+            };
+            return icons[category] || '🐛';
+        }
+
         function renderBugs(filteredBugs = BUGS) {
             const container = document.getElementById('bugsContainer');
             
+            if (filteredBugs.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                        <h3>No bugs match your filters</h3>
+                        <p style="color: var(--text-secondary);">Try adjusting your filter criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
             container.innerHTML = filteredBugs.map(bug => {
                 const isFound = foundBugs.includes(bug.id);
                 return `
                     <div class="bug-card ${isFound ? 'found' : ''}" onclick="toggleBug('${bug.id}')">
                         <div class="bug-header">
-                            <span class="bug-id">${bug.id}</span>
-                            <span class="bug-severity severity-${bug.severity}">${bug.severity}</span>
+                            <span class="bug-id">${escapeHtml(bug.id)}</span>
+                            <span class="bug-severity severity-${bug.severity}">${escapeHtml(bug.severity)}</span>
                         </div>
-                        <h4 class="bug-title">${isFound ? '✅ ' : ''}${bug.title}</h4>
-                        <p class="bug-hint">${bug.hint}</p>
+                        <h4 class="bug-title">${isFound ? '✅ ' : ''}${escapeHtml(bug.title)}</h4>
+                        <p class="bug-hint">💡 ${escapeHtml(bug.hint)}</p>
                         <div class="bug-location">
-                            <code>${bug.endpoint}</code>
-                            <span style="margin-left: auto;">${bug.category}</span>
+                            <code>${escapeHtml(bug.endpoint)}</code>
+                            <span style="margin-left: auto;">${getCategoryIcon(bug.category)} ${escapeHtml(bug.category)}</span>
                         </div>
                     </div>
                 `;
             }).join('');
 
+            document.getElementById('resultCount').textContent = `Showing ${filteredBugs.length} of ${BUGS.length} bugs`;
             updateProgress();
         }
 
@@ -196,11 +333,30 @@
         function updateProgress() {
             const total = BUGS.length;
             const found = foundBugs.length;
-            const percentage = (found / total) * 100;
+            const percentage = Math.round((found / total) * 100);
 
             document.getElementById('foundCount').textContent = found;
             document.getElementById('totalCount').textContent = total;
-            document.getElementById('progressFill').style.width = `${percentage}%`;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('foundPercent').textContent = percentage + '%';
+
+            // Update severity counts
+            const foundSet = new Set(foundBugs);
+            const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+            
+            BUGS.forEach(bug => {
+                if (foundSet.has(bug.id)) {
+                    counts[bug.severity]++;
+                }
+            });
+
+            const totals = { critical: 0, high: 0, medium: 0, low: 0 };
+            BUGS.forEach(bug => totals[bug.severity]++);
+
+            document.getElementById('criticalCount').textContent = counts.critical + '/' + totals.critical;
+            document.getElementById('highCount').textContent = counts.high + '/' + totals.high;
+            document.getElementById('mediumCount').textContent = counts.medium + '/' + totals.medium;
+            document.getElementById('lowCount').textContent = counts.low + '/' + totals.low;
         }
 
         function filterBugs() {
@@ -236,21 +392,5 @@
         // Initial render
         renderBugs();
     </script>
-
-    <style>
-        .bugs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1rem;
-        }
-
-        .bug-card {
-            cursor: pointer;
-        }
-
-        .bug-card:hover {
-            transform: translateY(-2px);
-        }
-    </style>
 </body>
 </html>
