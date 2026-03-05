@@ -1,10 +1,11 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
-const connectDB = require("./config/db");
+const { connectDB, getConnectionStatus } = require("./config/db");
 
 // Route imports
 const authRoutes = require("./routes/auth");
@@ -22,6 +23,9 @@ connectDB();
 // ─── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
+
+// ─── Serve Static Frontend ─────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, "../public")));
 
 // Global rate limiter (intentionally lenient for lab use)
 // BUG: Login route has NO per-route rate limit — brute force is possible
@@ -89,11 +93,13 @@ app.get("/api/docs.json", (req, res) => {
  *                   example: 1.0.0
  */
 app.get("/api/health", (req, res) => {
+  const dbStatus = getConnectionStatus();
   res.json({
-    status: "ok",
+    status: dbStatus.state === "connected" ? "ok" : "degraded",
     environment: process.env.NODE_ENV || "development",
     timestamp: new Date().toISOString(),
     version: "1.0.0",
+    database: dbStatus,
   });
 });
 
@@ -117,10 +123,20 @@ app.get("/", (req, res) => {
   });
 });
 
-// ─── 404 Handler ──────────────────────────────────────────────────────────────
+// ─── Serve Frontend for SPA routes ────────────────────────────────────────────
+app.get("/pages/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public", req.path));
+});
+
+// ─── 404 Handler for API routes ───────────────────────────────────────────────
 // BUG: Returns HTML 404 from Express default instead of JSON for unknown routes
-app.use((req, res) => {
+app.use("/api/*", (req, res) => {
   res.status(404).json({ message: `Route ${req.method} ${req.path} not found` });
+});
+
+// Fallback to index.html for unknown routes (SPA support)
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────

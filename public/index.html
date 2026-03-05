@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Training Lab - Learn Software Testing</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <span class="brand-text">QA Training Lab</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth">
+            <a href="/pages/login.html" class="btn btn-outline">Login</a>
+            <a href="/pages/register.html" class="btn btn-primary">Sign Up</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Learn QA Testing <span class="highlight">The Right Way</span></h1>
+                <p class="hero-subtitle">
+                    A free, hands-on training environment with intentionally buggy APIs. 
+                    Practice manual testing, API testing, and automation in a real-world scenario.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">58+</span>
+                        <span class="stat-label">Hidden Bugs</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">20+</span>
+                        <span class="stat-label">API Endpoints</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Free Forever</span>
+                    </div>
+                </div>
+                <div class="hero-actions">
+                    <a href="/pages/register.html" class="btn btn-primary btn-lg">Start Learning</a>
+                    <a href="/pages/guide.html" class="btn btn-outline btn-lg">View Guide</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="code-window">
+                    <div class="window-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <span class="window-title">test_api.py</span>
+                    </div>
+                    <pre class="code-content"><code><span class="keyword">def</span> <span class="function">test_login_without_password</span>():
+    response = requests.post(<span class="string">"/api/auth/login"</span>, 
+        json={<span class="string">"email"</span>: <span class="string">"test@example.com"</span>})
+    
+    <span class="comment"># BUG: Should return 400, returns 500</span>
+    <span class="keyword">assert</span> response.status_code == <span class="number">400</span>
+    <span class="keyword">assert</span> <span class="string">"password required"</span> <span class="keyword">in</span> response.json()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2 class="section-title">What You'll Learn</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Manual Testing</h3>
+                    <p>Learn to explore applications, identify edge cases, and write effective test cases without automation.</p>
+                    <ul class="feature-list">
+                        <li>Functional testing</li>
+                        <li>Boundary value analysis</li>
+                        <li>Exploratory testing</li>
+                        <li>Test case writing</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔌</div>
+                    <h3>API Testing</h3>
+                    <p>Master REST API testing using Postman, understand request/response cycles, and validate data integrity.</p>
+                    <ul class="feature-list">
+                        <li>REST API fundamentals</li>
+                        <li>Postman collections</li>
+                        <li>Status code validation</li>
+                        <li>Authentication testing</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Automation Testing</h3>
+                    <p>Write automated tests using popular frameworks and integrate with CI/CD pipelines.</p>
+                    <ul class="feature-list">
+                        <li>Test scripts in Python/JS</li>
+                        <li>Assertion libraries</li>
+                        <li>Test reporting</li>
+                        <li>CI/CD integration</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🐛</div>
+                    <h3>Bug Hunting</h3>
+                    <p>Find real bugs in a controlled environment. Practice bug reporting and learn common vulnerability patterns.</p>
+                    <ul class="feature-list">
+                        <li>58+ intentional bugs</li>
+                        <li>Bug severity classification</li>
+                        <li>Professional bug reports</li>
+                        <li>Root cause analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="learning-path">
+            <h2 class="section-title">Learning Path</h2>
+            <div class="path-container">
+                <div class="path-step">
+                    <div class="step-number">1</div>
+                    <h3>Setup & Basics</h3>
+                    <p>Create an account, explore the API documentation, and understand the application domain.</p>
+                </div>
+                <div class="path-connector"></div>
+                <div class="path-step">
+                    <div class="step-number">2</div>
+                    <h3>Manual Exploration</h3>
+                    <p>Use the UI to manually test features. Try edge cases, invalid inputs, and unexpected workflows.</p>
+                </div>
+                <div class="path-connector"></div>
+                <div class="path-step">
+                    <div class="step-number">3</div>
+                    <h3>API Testing</h3>
+                    <p>Import Postman collection and test each endpoint. Validate responses and error handling.</p>
+                </div>
+                <div class="path-connector"></div>
+                <div class="path-step">
+                    <div class="step-number">4</div>
+                    <h3>Bug Hunt</h3>
+                    <p>Use the Bug Hunt tracker to find and document all 58+ intentional bugs in the system.</p>
+                </div>
+                <div class="path-connector"></div>
+                <div class="path-step">
+                    <div class="step-number">5</div>
+                    <h3>Automation</h3>
+                    <p>Write automated test scripts and integrate with CI/CD for continuous testing.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="api-preview">
+            <h2 class="section-title">API Endpoints Preview</h2>
+            <div class="api-grid">
+                <div class="api-card">
+                    <span class="method post">POST</span>
+                    <span class="endpoint">/api/auth/register</span>
+                    <p>Create a new user account</p>
+                </div>
+                <div class="api-card">
+                    <span class="method post">POST</span>
+                    <span class="endpoint">/api/auth/login</span>
+                    <p>Authenticate and get JWT token</p>
+                </div>
+                <div class="api-card">
+                    <span class="method get">GET</span>
+                    <span class="endpoint">/api/products</span>
+                    <p>List all products with pagination</p>
+                </div>
+                <div class="api-card">
+                    <span class="method post">POST</span>
+                    <span class="endpoint">/api/cart</span>
+                    <p>Add items to shopping cart</p>
+                </div>
+                <div class="api-card">
+                    <span class="method post">POST</span>
+                    <span class="endpoint">/api/orders</span>
+                    <p>Create order from cart</p>
+                </div>
+                <div class="api-card">
+                    <span class="method get">GET</span>
+                    <span class="endpoint">/api/users/profile</span>
+                    <p>Get current user profile</p>
+                </div>
+            </div>
+            <div class="api-cta">
+                <a href="/api/docs" class="btn btn-primary" target="_blank">View Full API Documentation</a>
+            </div>
+        </section>
+
+        <section class="tools-section">
+            <h2 class="section-title">Tools You'll Use</h2>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="Postman" class="tool-logo">
+                    <h3>Postman</h3>
+                    <p>API testing platform</p>
+                </div>
+                <div class="tool-card">
+                    <img src="https://www.vectorlogo.zone/logos/swagger/swagger-icon.svg" alt="Swagger" class="tool-logo">
+                    <h3>Swagger</h3>
+                    <p>Interactive API docs</p>
+                </div>
+                <div class="tool-card">
+                    <img src="https://www.vectorlogo.zone/logos/nodejs/nodejs-icon.svg" alt="Node.js" class="tool-logo">
+                    <h3>Node.js</h3>
+                    <p>Backend runtime</p>
+                </div>
+                <div class="tool-card">
+                    <img src="https://www.vectorlogo.zone/logos/mongodb/mongodb-icon.svg" alt="MongoDB" class="tool-logo">
+                    <h3>MongoDB</h3>
+                    <p>NoSQL database</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="cta-content">
+                <h2>Ready to Start Your QA Journey?</h2>
+                <p>Join thousands of learners who are mastering software testing with hands-on practice.</p>
+                <a href="/pages/register.html" class="btn btn-primary btn-lg">Create Free Account</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo">🧪</span>
+                <span>QA Training Lab</span>
+            </div>
+            <div class="footer-links">
+                <a href="/pages/guide.html">Guide</a>
+                <a href="/api/docs" target="_blank">API Docs</a>
+                <a href="https://github.com" target="_blank">GitHub</a>
+            </div>
+            <p class="footer-text">Built for QA learners. 100% free and open source.</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

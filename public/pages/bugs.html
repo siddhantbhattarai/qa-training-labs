@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Hunt - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link active">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="dashboard-header">
+            <h1>🐛 Bug Hunt Challenge</h1>
+            <p>Find intentional bugs in the API and practice your QA skills</p>
+        </div>
+
+        <div class="bug-progress">
+            <h3>Your Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+            <p class="progress-text"><span id="foundCount">0</span> / <span id="totalCount">58</span> bugs found</p>
+            <button class="btn btn-outline btn-sm" onclick="resetProgress()" style="margin-top: 1rem;">Reset Progress</button>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <select id="categoryFilter" class="form-input" style="width: auto;" onchange="filterBugs()">
+                <option value="">All Categories</option>
+                <option value="validation">Validation</option>
+                <option value="authentication">Authentication</option>
+                <option value="authorization">Authorization</option>
+                <option value="business-logic">Business Logic</option>
+                <option value="error-handling">Error Handling</option>
+                <option value="security">Security</option>
+                <option value="performance">Performance</option>
+            </select>
+            <select id="severityFilter" class="form-input" style="width: auto;" onchange="filterBugs()">
+                <option value="">All Severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <select id="statusFilter" class="form-input" style="width: auto;" onchange="filterBugs()">
+                <option value="">All Status</option>
+                <option value="found">Found</option>
+                <option value="notfound">Not Found</option>
+            </select>
+        </div>
+
+        <div id="bugsContainer" class="bugs-grid"></div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        const BUGS = [
+            // Validation Bugs
+            { id: 'BUG-001', category: 'validation', severity: 'high', title: 'Empty email accepted in registration', hint: 'Try registering with empty or whitespace-only email', endpoint: 'POST /api/auth/register' },
+            { id: 'BUG-002', category: 'validation', severity: 'high', title: 'Invalid email format accepted', hint: 'Try emails like "test" or "test@" without proper domain', endpoint: 'POST /api/auth/register' },
+            { id: 'BUG-003', category: 'validation', severity: 'medium', title: 'No password strength validation', hint: 'Try weak passwords like "123" or "password"', endpoint: 'POST /api/auth/register' },
+            { id: 'BUG-004', category: 'validation', severity: 'medium', title: 'Negative product price accepted', hint: 'Try creating a product with negative price', endpoint: 'POST /api/products' },
+            { id: 'BUG-005', category: 'validation', severity: 'high', title: 'Negative quantity in cart', hint: 'Try adding items with quantity -1 or 0', endpoint: 'POST /api/cart' },
+            { id: 'BUG-006', category: 'validation', severity: 'medium', title: 'Empty product name accepted', hint: 'Create a product with empty name field', endpoint: 'POST /api/products' },
+            { id: 'BUG-007', category: 'validation', severity: 'low', title: 'No max length on user name', hint: 'Try registering with a very long name (1000+ characters)', endpoint: 'POST /api/auth/register' },
+            { id: 'BUG-008', category: 'validation', severity: 'medium', title: 'Product stock can be negative', hint: 'Set stock to -10 when creating/updating product', endpoint: 'PUT /api/products/:id' },
+            
+            // Authentication Bugs
+            { id: 'BUG-009', category: 'authentication', severity: 'critical', title: 'No rate limiting on login', hint: 'Make 100+ rapid login attempts - no blocking occurs', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-010', category: 'authentication', severity: 'high', title: 'Token not invalidated on logout', hint: 'Use old token after logout - it still works', endpoint: 'POST /api/auth/logout' },
+            { id: 'BUG-011', category: 'authentication', severity: 'medium', title: 'JWT expiry too long', hint: 'Check token expiry - may be set to days instead of hours', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-012', category: 'authentication', severity: 'high', title: 'Password not hashed properly', hint: 'Check if password comparison is timing-safe', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-013', category: 'authentication', severity: 'medium', title: 'Refresh token reusable', hint: 'Use the same refresh token multiple times', endpoint: 'POST /api/auth/refresh' },
+            
+            // Authorization Bugs
+            { id: 'BUG-014', category: 'authorization', severity: 'critical', title: 'User can access other user orders', hint: 'Try accessing another user\'s order by ID', endpoint: 'GET /api/orders/:id' },
+            { id: 'BUG-015', category: 'authorization', severity: 'critical', title: 'User can modify other user cart', hint: 'Try updating cart items using different user IDs', endpoint: 'PUT /api/cart' },
+            { id: 'BUG-016', category: 'authorization', severity: 'high', title: 'Non-admin can create products', hint: 'Create a product without admin role', endpoint: 'POST /api/products' },
+            { id: 'BUG-017', category: 'authorization', severity: 'high', title: 'User can cancel any order', hint: 'Try cancelling an order that belongs to another user', endpoint: 'PUT /api/orders/:id/cancel' },
+            { id: 'BUG-018', category: 'authorization', severity: 'medium', title: 'Admin endpoints accessible without token', hint: 'Access admin routes without Authorization header', endpoint: 'GET /api/users' },
+            
+            // Business Logic Bugs
+            { id: 'BUG-019', category: 'business-logic', severity: 'critical', title: 'Order placed with zero items', hint: 'Clear cart and immediately place order', endpoint: 'POST /api/orders' },
+            { id: 'BUG-020', category: 'business-logic', severity: 'high', title: 'Order total calculated incorrectly', hint: 'Check if total matches sum of items × prices', endpoint: 'POST /api/orders' },
+            { id: 'BUG-021', category: 'business-logic', severity: 'high', title: 'Stock not reduced after order', hint: 'Order an item and check if product stock decreases', endpoint: 'POST /api/orders' },
+            { id: 'BUG-022', category: 'business-logic', severity: 'medium', title: 'Cancelled order stock not restored', hint: 'Cancel an order and check if stock is restored', endpoint: 'PUT /api/orders/:id/cancel' },
+            { id: 'BUG-023', category: 'business-logic', severity: 'high', title: 'Can order more than stock available', hint: 'Add 1000 items to cart when stock is only 10', endpoint: 'POST /api/cart' },
+            { id: 'BUG-024', category: 'business-logic', severity: 'medium', title: 'Price changes affect existing cart', hint: 'Add item to cart, change price, checkout - which price used?', endpoint: 'POST /api/orders' },
+            { id: 'BUG-025', category: 'business-logic', severity: 'medium', title: 'Deleted product remains in cart', hint: 'Add product to cart, delete product, view cart', endpoint: 'GET /api/cart' },
+            { id: 'BUG-026', category: 'business-logic', severity: 'low', title: 'Can checkout with out-of-stock items', hint: 'Add item, have another user buy all stock, then checkout', endpoint: 'POST /api/orders' },
+            { id: 'BUG-027', category: 'business-logic', severity: 'medium', title: 'Duplicate items in cart', hint: 'Add same product multiple times - should merge quantities', endpoint: 'POST /api/cart' },
+            
+            // Error Handling Bugs
+            { id: 'BUG-028', category: 'error-handling', severity: 'medium', title: 'Invalid ObjectId crashes server', hint: 'Use invalid MongoDB ID like "abc123" in URL', endpoint: 'GET /api/products/abc123' },
+            { id: 'BUG-029', category: 'error-handling', severity: 'low', title: 'Missing fields return 500 instead of 400', hint: 'Send empty body to POST endpoints', endpoint: 'POST /api/auth/register' },
+            { id: 'BUG-030', category: 'error-handling', severity: 'medium', title: 'Stack trace leaked in error response', hint: 'Trigger an error and check if stack trace is visible', endpoint: 'Any endpoint' },
+            { id: 'BUG-031', category: 'error-handling', severity: 'low', title: 'Inconsistent error message format', hint: 'Compare error responses across different endpoints', endpoint: 'Multiple endpoints' },
+            { id: 'BUG-032', category: 'error-handling', severity: 'medium', title: 'No error for non-existent product', hint: 'Try to get product with valid but non-existent ID', endpoint: 'GET /api/products/:id' },
+            { id: 'BUG-033', category: 'error-handling', severity: 'low', title: 'HTML returned instead of JSON for 404', hint: 'Access a non-existent route and check Content-Type', endpoint: 'GET /api/nonexistent' },
+            
+            // Security Bugs
+            { id: 'BUG-034', category: 'security', severity: 'critical', title: 'SQL/NoSQL injection possible', hint: 'Try sending {"$gt": ""} in email field during login', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-035', category: 'security', severity: 'high', title: 'Sensitive data in response', hint: 'Check if password hash is returned in user responses', endpoint: 'GET /api/users/profile' },
+            { id: 'BUG-036', category: 'security', severity: 'medium', title: 'No CORS restrictions', hint: 'Check Access-Control-Allow-Origin header', endpoint: 'Any endpoint' },
+            { id: 'BUG-037', category: 'security', severity: 'high', title: 'JWT secret too weak', hint: 'Try common secrets or decode JWT to check algorithm', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-038', category: 'security', severity: 'medium', title: 'User enumeration via registration', hint: 'Register existing email - does error reveal user exists?', endpoint: 'POST /api/auth/register' },
+            { id: 'BUG-039', category: 'security', severity: 'medium', title: 'User enumeration via login', hint: 'Login with non-existent email - different error than wrong password?', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-040', category: 'security', severity: 'high', title: 'Mass assignment vulnerability', hint: 'Try setting role:"admin" during registration', endpoint: 'POST /api/auth/register' },
+            
+            // Performance Bugs
+            { id: 'BUG-041', category: 'performance', severity: 'medium', title: 'No pagination on products list', hint: 'Request all products - does it return thousands at once?', endpoint: 'GET /api/products' },
+            { id: 'BUG-042', category: 'performance', severity: 'low', title: 'N+1 query problem', hint: 'List orders - check if each item triggers separate DB query', endpoint: 'GET /api/orders' },
+            { id: 'BUG-043', category: 'performance', severity: 'medium', title: 'No request size limit', hint: 'Send very large JSON body (1MB+) to endpoints', endpoint: 'POST /api/products' },
+            { id: 'BUG-044', category: 'performance', severity: 'low', title: 'Slow regex in search', hint: 'Search with complex regex pattern - check response time', endpoint: 'GET /api/products?search=.*.*.*.*' },
+            
+            // Additional Validation Bugs
+            { id: 'BUG-045', category: 'validation', severity: 'medium', title: 'Special characters in name not sanitized', hint: 'Use <script>alert(1)</script> as product name', endpoint: 'POST /api/products' },
+            { id: 'BUG-046', category: 'validation', severity: 'low', title: 'Unicode characters cause issues', hint: 'Use emoji or RTL characters in product names', endpoint: 'POST /api/products' },
+            { id: 'BUG-047', category: 'validation', severity: 'medium', title: 'Price accepts string values', hint: 'Set price to "free" or "NaN"', endpoint: 'POST /api/products' },
+            { id: 'BUG-048', category: 'validation', severity: 'low', title: 'Decimal quantities allowed', hint: 'Add 1.5 items to cart', endpoint: 'POST /api/cart' },
+            
+            // Additional Business Logic Bugs
+            { id: 'BUG-049', category: 'business-logic', severity: 'medium', title: 'Order status can skip steps', hint: 'Change status from pending directly to delivered', endpoint: 'PUT /api/orders/:id' },
+            { id: 'BUG-050', category: 'business-logic', severity: 'high', title: 'Cancelled order can be modified', hint: 'Try changing status of already cancelled order', endpoint: 'PUT /api/orders/:id' },
+            { id: 'BUG-051', category: 'business-logic', severity: 'medium', title: 'Same product added multiple times', hint: 'Add same product twice - creates duplicates instead of incrementing', endpoint: 'POST /api/cart' },
+            { id: 'BUG-052', category: 'business-logic', severity: 'low', title: 'Cart persists after order', hint: 'Place order - is cart cleared?', endpoint: 'POST /api/orders' },
+            
+            // Additional Auth Bugs
+            { id: 'BUG-053', category: 'authentication', severity: 'medium', title: 'Password change without old password', hint: 'Change password without providing current password', endpoint: 'PUT /api/users/change-password' },
+            { id: 'BUG-054', category: 'authentication', severity: 'high', title: 'Session fixation possible', hint: 'Check if session/token changes after login', endpoint: 'POST /api/auth/login' },
+            { id: 'BUG-055', category: 'authentication', severity: 'medium', title: 'Account lockout not implemented', hint: 'Make many failed login attempts - no lockout', endpoint: 'POST /api/auth/login' },
+            
+            // Additional Error Handling
+            { id: 'BUG-056', category: 'error-handling', severity: 'low', title: 'Wrong HTTP method returns 404 not 405', hint: 'Send DELETE to /api/auth/login', endpoint: 'DELETE /api/auth/login' },
+            { id: 'BUG-057', category: 'error-handling', severity: 'medium', title: 'Database connection errors exposed', hint: 'Check error messages when DB is down', endpoint: 'Any endpoint' },
+            { id: 'BUG-058', category: 'error-handling', severity: 'low', title: 'Missing Content-Type causes crash', hint: 'Send request without Content-Type header', endpoint: 'POST /api/auth/register' },
+        ];
+
+        let foundBugs = JSON.parse(localStorage.getItem('qa_lab_bugs_found') || '[]');
+
+        function renderBugs(filteredBugs = BUGS) {
+            const container = document.getElementById('bugsContainer');
+            
+            container.innerHTML = filteredBugs.map(bug => {
+                const isFound = foundBugs.includes(bug.id);
+                return `
+                    <div class="bug-card ${isFound ? 'found' : ''}" onclick="toggleBug('${bug.id}')">
+                        <div class="bug-header">
+                            <span class="bug-id">${bug.id}</span>
+                            <span class="bug-severity severity-${bug.severity}">${bug.severity}</span>
+                        </div>
+                        <h4 class="bug-title">${isFound ? '✅ ' : ''}${bug.title}</h4>
+                        <p class="bug-hint">${bug.hint}</p>
+                        <div class="bug-location">
+                            <code>${bug.endpoint}</code>
+                            <span style="margin-left: auto;">${bug.category}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateProgress();
+        }
+
+        function toggleBug(bugId) {
+            const index = foundBugs.indexOf(bugId);
+            if (index === -1) {
+                foundBugs.push(bugId);
+                App.showToast('Bug marked as found! 🎉', 'success');
+            } else {
+                foundBugs.splice(index, 1);
+                App.showToast('Bug unmarked', 'info');
+            }
+            localStorage.setItem('qa_lab_bugs_found', JSON.stringify(foundBugs));
+            filterBugs();
+        }
+
+        function updateProgress() {
+            const total = BUGS.length;
+            const found = foundBugs.length;
+            const percentage = (found / total) * 100;
+
+            document.getElementById('foundCount').textContent = found;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+        }
+
+        function filterBugs() {
+            const category = document.getElementById('categoryFilter').value;
+            const severity = document.getElementById('severityFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            let filtered = BUGS;
+
+            if (category) {
+                filtered = filtered.filter(bug => bug.category === category);
+            }
+            if (severity) {
+                filtered = filtered.filter(bug => bug.severity === severity);
+            }
+            if (status === 'found') {
+                filtered = filtered.filter(bug => foundBugs.includes(bug.id));
+            } else if (status === 'notfound') {
+                filtered = filtered.filter(bug => !foundBugs.includes(bug.id));
+            }
+
+            renderBugs(filtered);
+        }
+
+        function resetProgress() {
+            if (!confirm('Are you sure you want to reset your bug hunting progress?')) return;
+            foundBugs = [];
+            localStorage.setItem('qa_lab_bugs_found', '[]');
+            filterBugs();
+            App.showToast('Progress reset', 'info');
+        }
+
+        // Initial render
+        renderBugs();
+    </script>
+
+    <style>
+        .bugs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1rem;
+        }
+
+        .bug-card {
+            cursor: pointer;
+        }
+
+        .bug-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link active">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="dashboard-header">
+            <h1>Shopping Cart</h1>
+            <p>Review your items before checkout</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem;">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Cart Items</h3>
+                    <button class="btn btn-outline btn-sm" onclick="clearCart()">Clear All</button>
+                </div>
+                <div id="cartItems">
+                    <div style="padding: 2rem; text-align: center;">
+                        <div class="spinner" style="margin: 0 auto;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="cart-summary">
+                    <h3 style="margin-bottom: 1rem;">Order Summary</h3>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span id="shipping">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (10%)</span>
+                        <span id="tax">$0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="checkout()" id="checkoutBtn">
+                        Proceed to Checkout
+                    </button>
+                </div>
+
+                <div class="card" style="margin-top: 1rem;">
+                    <div class="card-body">
+                        <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem;">🐛 QA Testing Tips</h4>
+                        <ul style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 1.25rem;">
+                            <li>Try adding negative quantities</li>
+                            <li>Add more than stock available</li>
+                            <li>Remove items and check totals</li>
+                            <li>Check cart after logout/login</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Checkout</h3>
+                <button class="modal-close" onclick="App.closeModal('checkoutModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label class="form-label">Street Address</label>
+                        <input type="text" id="street" class="form-input" placeholder="123 Main St" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" id="city" class="form-input" placeholder="New York" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <input type="text" id="state" class="form-input" placeholder="NY" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">ZIP Code</label>
+                            <input type="text" id="zipCode" class="form-input" placeholder="10001" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <input type="text" id="country" class="form-input" placeholder="USA" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="App.closeModal('checkoutModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="placeOrder()" id="placeOrderBtn">Place Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) {
+            throw new Error('Not authenticated');
+        }
+
+        let cart = { items: [], totalAmount: 0 };
+
+        async function loadCart() {
+            const result = await API.cart.get();
+            
+            if (result.success) {
+                cart = result.data;
+                renderCart();
+                updateSummary();
+            } else {
+                document.getElementById('cartItems').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h3>Failed to load cart</h3>
+                        <p>${result.error}</p>
+                        <button class="btn btn-primary" onclick="loadCart()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            
+            if (!cart.items || cart.items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🛒</div>
+                        <h3>Your cart is empty</h3>
+                        <p>Add some products to get started</p>
+                        <a href="/pages/products.html" class="btn btn-primary">Browse Products</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = cart.items.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-image">${App.getProductEmoji(item.product?.category)}</div>
+                    <div class="cart-item-info">
+                        <h4>${item.product?.name || 'Unknown Product'}</h4>
+                        <p>${App.formatPrice(item.price || item.product?.price || 0)} each</p>
+                    </div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQuantity('${item.product?._id}', ${item.quantity - 1})">−</button>
+                        <span class="quantity-value">${item.quantity}</span>
+                        <button class="quantity-btn" onclick="updateQuantity('${item.product?._id}', ${item.quantity + 1})">+</button>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-weight: 600;">${App.formatPrice((item.price || item.product?.price || 0) * item.quantity)}</p>
+                        <button class="btn btn-danger btn-sm" onclick="removeItem('${item.product?._id}')" style="margin-top: 0.5rem;">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSummary() {
+            const subtotal = cart.totalAmount || 0;
+            const shipping = subtotal > 0 ? (subtotal >= 50 ? 0 : 5.99) : 0;
+            const tax = subtotal * 0.1;
+            const total = subtotal + shipping + tax;
+
+            document.getElementById('subtotal').textContent = App.formatPrice(subtotal);
+            document.getElementById('shipping').textContent = shipping === 0 ? 'FREE' : App.formatPrice(shipping);
+            document.getElementById('tax').textContent = App.formatPrice(tax);
+            document.getElementById('total').textContent = App.formatPrice(total);
+            
+            document.getElementById('checkoutBtn').disabled = !cart.items || cart.items.length === 0;
+        }
+
+        async function updateQuantity(productId, quantity) {
+            if (quantity < 1) {
+                removeItem(productId);
+                return;
+            }
+
+            const result = await API.cart.update(productId, quantity);
+            if (result.success) {
+                loadCart();
+            } else {
+                App.showToast(result.error || 'Failed to update quantity', 'error');
+            }
+        }
+
+        async function removeItem(productId) {
+            const result = await API.cart.remove(productId);
+            if (result.success) {
+                App.showToast('Item removed', 'success');
+                loadCart();
+            } else {
+                App.showToast(result.error || 'Failed to remove item', 'error');
+            }
+        }
+
+        async function clearCart() {
+            if (!confirm('Are you sure you want to clear your cart?')) return;
+            
+            const result = await API.cart.clear();
+            if (result.success) {
+                App.showToast('Cart cleared', 'success');
+                loadCart();
+            } else {
+                App.showToast(result.error || 'Failed to clear cart', 'error');
+            }
+        }
+
+        function checkout() {
+            if (!cart.items || cart.items.length === 0) {
+                App.showToast('Your cart is empty', 'warning');
+                return;
+            }
+            App.openModal('checkoutModal');
+        }
+
+        async function placeOrder() {
+            const shippingAddress = {
+                street: document.getElementById('street').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zipCode: document.getElementById('zipCode').value,
+                country: document.getElementById('country').value
+            };
+
+            if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.zipCode || !shippingAddress.country) {
+                App.showToast('Please fill in all address fields', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('placeOrderBtn');
+            App.showLoading(btn);
+
+            const result = await API.orders.create(shippingAddress);
+            
+            App.hideLoading(btn);
+
+            if (result.success) {
+                App.closeModal('checkoutModal');
+                App.showToast('Order placed successfully!', 'success');
+                window.location.href = '/pages/orders.html';
+            } else {
+                App.showToast(result.error || 'Failed to place order', 'error');
+            }
+        }
+
+        loadCart();
+    </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link active">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="dashboard-header">
+            <h1>Welcome, <span id="userName">User</span>!</h1>
+            <p>Track your QA learning progress and explore the intentionally buggy API</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🐛</div>
+                <div class="stat-value" id="bugsFound">0</div>
+                <div class="stat-label">Bugs Found</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🛒</div>
+                <div class="stat-value" id="cartItems">0</div>
+                <div class="stat-label">Cart Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-value" id="orderCount">0</div>
+                <div class="stat-label">Orders Placed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="testsPassed">0</div>
+                <div class="stat-label">Tests Passed</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem;">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <a href="/pages/products.html" class="btn btn-outline" style="justify-content: flex-start;">
+                            🛍️ Browse Products
+                        </a>
+                        <a href="/pages/cart.html" class="btn btn-outline" style="justify-content: flex-start;">
+                            🛒 View Cart
+                        </a>
+                        <a href="/pages/bugs.html" class="btn btn-outline" style="justify-content: flex-start;">
+                            🐛 Start Bug Hunting
+                        </a>
+                        <a href="/api/docs" class="btn btn-outline" style="justify-content: flex-start;" target="_blank">
+                            📖 API Documentation
+                        </a>
+                        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="seedDatabase()">
+                            🌱 Seed Test Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Learning Resources</h3>
+                </div>
+                <div class="card-body">
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">📋 Manual Testing Guide</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Learn how to test the UI manually and identify edge cases</p>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">🔌 API Testing with Postman</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Import the Postman collection and test all endpoints</p>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">🤖 Automation Scripts</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Write automated tests using Python or JavaScript</p>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">🐛 Bug Categories</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem;">Validation, Auth, Logic, Performance, Security bugs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+                <h3 class="card-title">Your Profile</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.85rem;">Name</label>
+                        <p id="profileName">-</p>
+                    </div>
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.85rem;">Email</label>
+                        <p id="profileEmail">-</p>
+                    </div>
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.85rem;">Role</label>
+                        <p id="profileRole">-</p>
+                    </div>
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.85rem;">Member Since</label>
+                        <p id="profileCreated">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) {
+            throw new Error('Not authenticated');
+        }
+
+        async function loadDashboard() {
+            const user = Auth.getUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('profileName').textContent = user.name || '-';
+                document.getElementById('profileEmail').textContent = user.email || '-';
+                document.getElementById('profileRole').innerHTML = `<span class="badge ${user.role === 'admin' ? 'badge-warning' : 'badge-info'}">${user.role || 'user'}</span>`;
+                document.getElementById('profileCreated').textContent = user.createdAt ? App.formatDate(user.createdAt) : '-';
+            }
+
+            // Load cart count
+            const cartResult = await API.cart.get();
+            if (cartResult.success && cartResult.data.items) {
+                document.getElementById('cartItems').textContent = cartResult.data.items.length;
+            }
+
+            // Load orders count
+            const ordersResult = await API.orders.list();
+            if (ordersResult.success && ordersResult.data.orders) {
+                document.getElementById('orderCount').textContent = ordersResult.data.orders.length;
+            }
+
+            // Load bugs found from localStorage
+            const bugsFound = JSON.parse(localStorage.getItem('qa_lab_bugs_found') || '[]');
+            document.getElementById('bugsFound').textContent = bugsFound.length;
+        }
+
+        async function seedDatabase() {
+            const result = await API.seed();
+            if (result.success) {
+                App.showToast('Database seeded successfully! Products and test data created.', 'success');
+            } else {
+                App.showToast(result.error || 'Failed to seed database', 'error');
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

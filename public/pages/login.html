@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to continue your QA training</p>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="your@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="submitBtn">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                Don't have an account? <a href="/pages/register.html">Sign up</a>
+            </div>
+            
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 0.75rem;">Demo Credentials:</p>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-outline btn-sm" style="flex: 1;" onclick="fillDemo('user')">User</button>
+                    <button type="button" class="btn btn-outline btn-sm" style="flex: 1;" onclick="fillDemo('admin')">Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        if (Auth.isAuthenticated()) {
+            window.location.href = '/pages/dashboard.html';
+        }
+        
+        function fillDemo(role) {
+            if (role === 'admin') {
+                document.getElementById('email').value = 'admin@qalab.com';
+                document.getElementById('password').value = 'Admin@1234';
+            } else {
+                document.getElementById('email').value = 'john@example.com';
+                document.getElementById('password').value = 'Password123';
+            }
+        }
+        
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            App.showLoading(submitBtn);
+            
+            const result = await Auth.login(email, password);
+            
+            App.hideLoading(submitBtn);
+            
+            if (result.success) {
+                const params = new URLSearchParams(window.location.search);
+                const redirect = params.get('redirect') || '/pages/dashboard.html';
+                window.location.href = redirect;
+            } else {
+                showAlert(result.error || 'Login failed. Please check your credentials.');
+            }
+        });
+    </script>
+</body>
+</html>

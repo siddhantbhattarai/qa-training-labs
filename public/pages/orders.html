@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link active">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="dashboard-header">
+            <h1>My Orders</h1>
+            <p>View and manage your order history</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Order History</h3>
+            </div>
+            <div id="ordersContainer">
+                <div style="padding: 2rem; text-align: center;">
+                    <div class="spinner" style="margin: 0 auto;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Details Modal -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Order Details</h3>
+                <button class="modal-close" onclick="App.closeModal('orderModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="orderModalContent">
+                Loading...
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="App.closeModal('orderModal')">Close</button>
+                <button class="btn btn-danger" id="cancelOrderBtn" onclick="cancelCurrentOrder()">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) {
+            throw new Error('Not authenticated');
+        }
+
+        let orders = [];
+        let currentOrderId = null;
+
+        async function loadOrders() {
+            const result = await API.orders.list();
+            
+            if (result.success) {
+                orders = result.data.orders || result.data || [];
+                renderOrders();
+            } else {
+                document.getElementById('ordersContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h3>Failed to load orders</h3>
+                        <p>${result.error}</p>
+                        <button class="btn btn-primary" onclick="loadOrders()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('ordersContainer');
+            
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <h3>No orders yet</h3>
+                        <p>Your order history will appear here</p>
+                        <a href="/pages/products.html" class="btn btn-primary">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${orders.map(order => `
+                                <tr>
+                                    <td style="font-family: monospace; font-size: 0.85rem;">${order.orderNumber || order._id.slice(-8)}</td>
+                                    <td>${App.formatDate(order.createdAt)}</td>
+                                    <td>${order.items?.length || 0} items</td>
+                                    <td style="font-weight: 600;">${App.formatPrice(order.totalAmount)}</td>
+                                    <td><span class="badge ${App.getStatusBadge(order.status)}">${order.status}</span></td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm" onclick="viewOrder('${order._id}')">View</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function viewOrder(orderId) {
+            currentOrderId = orderId;
+            const order = orders.find(o => o._id === orderId);
+            
+            if (!order) {
+                App.showToast('Order not found', 'error');
+                return;
+            }
+
+            const canCancel = order.status === 'pending' || order.status === 'processing';
+            
+            document.getElementById('orderModalContent').innerHTML = `
+                <div style="display: grid; gap: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.85rem;">Order Number</label>
+                            <p style="font-family: monospace;">${order.orderNumber || order._id}</p>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.85rem;">Status</label>
+                            <p><span class="badge ${App.getStatusBadge(order.status)}">${order.status}</span></p>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.85rem;">Order Date</label>
+                            <p>${App.formatDate(order.createdAt)}</p>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.85rem;">Total Amount</label>
+                            <p style="font-weight: 700; color: var(--secondary);">${App.formatPrice(order.totalAmount)}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.85rem;">Shipping Address</label>
+                        <p>${order.shippingAddress ? 
+                            `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}, ${order.shippingAddress.country}` 
+                            : 'Not available'}</p>
+                    </div>
+
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Order Items</label>
+                        <div style="border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
+                            ${order.items?.map(item => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <span style="font-size: 1.5rem;">${App.getProductEmoji(item.product?.category)}</span>
+                                        <div>
+                                            <p style="font-weight: 500;">${item.product?.name || 'Unknown Product'}</p>
+                                            <p style="color: var(--text-muted); font-size: 0.85rem;">Qty: ${item.quantity} × ${App.formatPrice(item.price)}</p>
+                                        </div>
+                                    </div>
+                                    <p style="font-weight: 600;">${App.formatPrice(item.quantity * item.price)}</p>
+                                </div>
+                            `).join('') || '<p style="padding: 1rem; color: var(--text-muted);">No items</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('cancelOrderBtn').style.display = canCancel ? 'inline-flex' : 'none';
+            App.openModal('orderModal');
+        }
+
+        async function cancelCurrentOrder() {
+            if (!currentOrderId) return;
+            
+            if (!confirm('Are you sure you want to cancel this order?')) return;
+
+            const result = await API.orders.cancel(currentOrderId);
+            
+            if (result.success) {
+                App.showToast('Order cancelled successfully', 'success');
+                App.closeModal('orderModal');
+                loadOrders();
+            } else {
+                App.showToast(result.error || 'Failed to cancel order', 'error');
+            }
+        }
+
+        loadOrders();
+    </script>
+</body>
+</html>

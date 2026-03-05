@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Guide - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container" style="max-width: 900px;">
+        <div class="dashboard-header">
+            <h1>📖 QA Training Guide</h1>
+            <p>Learn software testing step by step with practical examples</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-body">
+                <nav style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="#getting-started" class="btn btn-outline btn-sm">Getting Started</a>
+                    <a href="#manual-testing" class="btn btn-outline btn-sm">Manual Testing</a>
+                    <a href="#api-testing" class="btn btn-outline btn-sm">API Testing</a>
+                    <a href="#automation" class="btn btn-outline btn-sm">Automation</a>
+                    <a href="#bug-reporting" class="btn btn-outline btn-sm">Bug Reporting</a>
+                </nav>
+            </div>
+        </div>
+
+        <section id="getting-started" class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">🚀 Getting Started</h2>
+            </div>
+            <div class="card-body">
+                <h3 style="margin-bottom: 1rem;">Step 1: Seed the Database</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    First, you need to populate the database with test data. Click the "Seed Database" button 
+                    on the dashboard or send a POST request to <code>/api/seed</code>.
+                </p>
+                <pre style="background: var(--bg-dark); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto;"><code>curl -X POST https://your-app.onrender.com/api/seed</code></pre>
+
+                <h3 style="margin: 1.5rem 0 1rem;">Step 2: Create an Account</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Register a new user account or use the demo credentials:
+                </p>
+                <ul style="color: var(--text-secondary); padding-left: 1.5rem; margin-bottom: 1rem;">
+                    <li><strong>User:</strong> john@example.com / Password123</li>
+                    <li><strong>Admin:</strong> admin@qalab.com / Admin@1234</li>
+                </ul>
+
+                <h3 style="margin: 1.5rem 0 1rem;">Step 3: Explore the API Documentation</h3>
+                <p style="color: var(--text-secondary);">
+                    Visit <a href="/api/docs" target="_blank" style="color: var(--primary);">/api/docs</a> to see all available 
+                    endpoints with interactive testing capabilities.
+                </p>
+            </div>
+        </section>
+
+        <section id="manual-testing" class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">📋 Manual Testing Guide</h2>
+            </div>
+            <div class="card-body">
+                <h3 style="margin-bottom: 1rem;">What is Manual Testing?</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Manual testing involves manually executing test cases without using automation tools. 
+                    It's the foundation of QA and helps you understand user experience firsthand.
+                </p>
+
+                <h3 style="margin-bottom: 1rem;">Key Testing Techniques</h3>
+                
+                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">1. Boundary Value Analysis</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Test at the edges of input ranges. For example, if quantity should be 1-100:
+                            test 0, 1, 50, 100, 101, -1, and very large numbers.
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">2. Equivalence Partitioning</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Divide inputs into groups that should behave the same. Test one value from each group.
+                            Valid emails, invalid emails, empty input, special characters.
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">3. Exploratory Testing</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Freely explore the application without predefined test cases. Follow your intuition,
+                            try unusual workflows, and think like a user who might make mistakes.
+                        </p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">4. Negative Testing</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Try to break the application with invalid inputs: empty fields, SQL injection,
+                            special characters, extremely long strings, and unexpected data types.
+                        </p>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">Practice Exercise</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    Test the registration form with these scenarios:
+                </p>
+                <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                    <li>Empty email, empty password, empty name</li>
+                    <li>Invalid email formats (no @, no domain, spaces)</li>
+                    <li>Password variations (too short, no numbers, no uppercase)</li>
+                    <li>Already registered email</li>
+                    <li>Special characters in name field</li>
+                    <li>Very long inputs (1000+ characters)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="api-testing" class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">🔌 API Testing Guide</h2>
+            </div>
+            <div class="card-body">
+                <h3 style="margin-bottom: 1rem;">Using Postman</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Postman is the most popular tool for API testing. Here's how to get started:
+                </p>
+
+                <ol style="color: var(--text-secondary); padding-left: 1.5rem; margin-bottom: 1.5rem;">
+                    <li style="margin-bottom: 0.5rem;">Download Postman from <a href="https://www.postman.com/downloads/" target="_blank" style="color: var(--primary);">postman.com</a></li>
+                    <li style="margin-bottom: 0.5rem;">Import our collection from <code>/postman/QA-Training-Lab.postman_collection.json</code></li>
+                    <li style="margin-bottom: 0.5rem;">Import the environment file for your URLs and tokens</li>
+                    <li>Start testing endpoints!</li>
+                </ol>
+
+                <h3 style="margin-bottom: 1rem;">API Testing Checklist</h3>
+                <div style="display: grid; gap: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Verify correct HTTP status codes (200, 201, 400, 401, 404, 500)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Check response body structure and data types
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Validate error messages are helpful but not revealing
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Test authentication - valid token, invalid token, no token
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Test authorization - can users access only their data?
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Test with missing required fields
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Test with invalid data types (string instead of number)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <input type="checkbox"> Check response headers (Content-Type, CORS)
+                    </label>
+                </div>
+
+                <h3 style="margin: 1.5rem 0 1rem;">Example: Testing Login Endpoint</h3>
+                <pre style="background: var(--bg-dark); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.85rem;"><code># Valid login
+POST /api/auth/login
+{
+    "email": "john@example.com",
+    "password": "Password123"
+}
+# Expected: 200 with accessToken
+
+# Invalid password
+POST /api/auth/login
+{
+    "email": "john@example.com",
+    "password": "wrongpassword"
+}
+# Expected: 401 Unauthorized
+
+# Missing fields
+POST /api/auth/login
+{}
+# Expected: 400 Bad Request</code></pre>
+            </div>
+        </section>
+
+        <section id="automation" class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">🤖 Automation Testing Guide</h2>
+            </div>
+            <div class="card-body">
+                <h3 style="margin-bottom: 1rem;">Python Example with pytest</h3>
+                <pre style="background: var(--bg-dark); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.85rem;"><code>import requests
+import pytest
+
+BASE_URL = "https://your-app.onrender.com/api"
+
+class TestAuth:
+    def test_register_success(self):
+        response = requests.post(f"{BASE_URL}/auth/register", json={
+            "name": "Test User",
+            "email": "test@example.com",
+            "password": "Password123"
+        })
+        assert response.status_code == 201
+        assert "accessToken" in response.json()
+
+    def test_login_invalid_credentials(self):
+        response = requests.post(f"{BASE_URL}/auth/login", json={
+            "email": "wrong@example.com",
+            "password": "wrongpass"
+        })
+        assert response.status_code == 401
+
+    def test_login_missing_password(self):
+        response = requests.post(f"{BASE_URL}/auth/login", json={
+            "email": "test@example.com"
+        })
+        # BUG: Should be 400, might return 500
+        assert response.status_code == 400</code></pre>
+
+                <h3 style="margin: 1.5rem 0 1rem;">JavaScript Example with Jest</h3>
+                <pre style="background: var(--bg-dark); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.85rem;"><code>const axios = require('axios');
+
+const BASE_URL = 'https://your-app.onrender.com/api';
+
+describe('Products API', () => {
+    let token;
+
+    beforeAll(async () => {
+        const res = await axios.post(`${BASE_URL}/auth/login`, {
+            email: 'admin@qalab.com',
+            password: 'Admin@1234'
+        });
+        token = res.data.accessToken;
+    });
+
+    test('should list all products', async () => {
+        const res = await axios.get(`${BASE_URL}/products`);
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.data.products)).toBe(true);
+    });
+
+    test('should not allow negative price', async () => {
+        // BUG: This might actually create the product!
+        try {
+            await axios.post(`${BASE_URL}/products`, {
+                name: 'Test Product',
+                price: -10,
+                stock: 100
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            fail('Should have rejected negative price');
+        } catch (error) {
+            expect(error.response.status).toBe(400);
+        }
+    });
+});</code></pre>
+            </div>
+        </section>
+
+        <section id="bug-reporting" class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">🐛 Bug Reporting Guide</h2>
+            </div>
+            <div class="card-body">
+                <h3 style="margin-bottom: 1rem;">Good Bug Report Template</h3>
+                <div style="background: var(--bg-dark); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                    <p style="margin-bottom: 1rem;"><strong style="color: var(--primary);">Title:</strong> [Severity] Brief description of the bug</p>
+                    
+                    <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">Environment:</strong></p>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem; margin-bottom: 1rem;">
+                        <li>URL: https://your-app.onrender.com</li>
+                        <li>Browser/Tool: Postman v10.0</li>
+                        <li>User Role: Regular user</li>
+                    </ul>
+
+                    <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">Steps to Reproduce:</strong></p>
+                    <ol style="color: var(--text-secondary); padding-left: 1.5rem; margin-bottom: 1rem;">
+                        <li>Login as user john@example.com</li>
+                        <li>Send POST to /api/cart with {"productId": "...", "quantity": -5}</li>
+                        <li>Observe the response</li>
+                    </ol>
+
+                    <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">Expected Result:</strong></p>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">400 Bad Request with error "Quantity must be positive"</p>
+
+                    <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">Actual Result:</strong></p>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">200 OK - Item added with negative quantity, cart total becomes negative</p>
+
+                    <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">Severity:</strong> High</p>
+                    <p style="color: var(--text-secondary);">Users could potentially get money/credit by exploiting negative quantities</p>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">Severity Levels</h3>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="bug-severity severity-critical" style="width: 80px; text-align: center;">Critical</span>
+                        <span style="color: var(--text-secondary);">System crash, data loss, security breach, complete feature failure</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="bug-severity severity-high" style="width: 80px; text-align: center;">High</span>
+                        <span style="color: var(--text-secondary);">Major feature broken, no workaround, affects many users</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="bug-severity severity-medium" style="width: 80px; text-align: center;">Medium</span>
+                        <span style="color: var(--text-secondary);">Feature partially broken, workaround exists, moderate impact</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="bug-severity severity-low" style="width: 80px; text-align: center;">Low</span>
+                        <span style="color: var(--text-secondary);">Minor issue, cosmetic problem, edge case, minimal impact</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="cta-section" style="margin: 0;">
+            <div class="cta-content">
+                <h2>Ready to Start Testing?</h2>
+                <p>Put your skills to the test and find all 58+ bugs!</p>
+                <a href="/pages/bugs.html" class="btn btn-primary btn-lg">Start Bug Hunt</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo">🧪</span>
+                <span>QA Training Lab</span>
+            </div>
+            <p class="footer-text">Built for QA learners. 100% free and open source.</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
