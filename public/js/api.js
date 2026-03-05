@@ -121,27 +121,28 @@ const API = {
         },
         
         async add(productId, quantity = 1) {
-            return API.request('/api/cart', {
+            return API.request('/api/cart/add', {
                 method: 'POST',
                 body: { productId, quantity }
             });
         },
         
-        async update(productId, quantity) {
-            return API.request('/api/cart', {
+        async update(itemId, quantity) {
+            // Note: Backend doesn't have update endpoint, need to remove and re-add
+            return API.request(`/api/cart/update/${itemId}`, {
                 method: 'PUT',
-                body: { productId, quantity }
+                body: { quantity }
             });
         },
         
-        async remove(productId) {
-            return API.request(`/api/cart/${productId}`, {
+        async remove(itemId) {
+            return API.request(`/api/cart/remove/${itemId}`, {
                 method: 'DELETE'
             });
         },
         
         async clear() {
-            return API.request('/api/cart', {
+            return API.request('/api/cart/clear', {
                 method: 'DELETE'
             });
         }

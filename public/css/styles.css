@@ -531,9 +531,10 @@ section {
 .cta-section {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     border-radius: var(--radius-xl);
-    margin: 2rem;
+    margin: 2rem auto;
     padding: 4rem 2rem;
     text-align: center;
+    max-width: 1360px;
 }
 
 .cta-content h2 {
