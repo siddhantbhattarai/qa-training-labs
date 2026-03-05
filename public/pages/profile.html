@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .avatar-section {
+            text-align: center;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .file-upload-label {
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        .file-upload-label:hover { text-decoration: underline; }
+        #avatarInput { display: none; }
+        .profile-info h2 { margin-bottom: 0.5rem; }
+        .profile-info p { color: var(--text-secondary); margin: 0.25rem 0; }
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        .role-admin { background: #f59e0b20; color: #f59e0b; }
+        .role-user { background: #6366f120; color: #6366f1; }
+        .form-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-section h3 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .profile-header { flex-direction: column; text-align: center; }
+        }
+        .password-strength {
+            height: 4px;
+            background: var(--bg-dark);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        .password-strength-fill {
+            height: 100%;
+            transition: all 0.3s;
+        }
+        .strength-weak { width: 33%; background: #ef4444; }
+        .strength-medium { width: 66%; background: #f59e0b; }
+        .strength-strong { width: 100%; background: #22c55e; }
+        .upload-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: var(--radius-md);
+            display: none;
+        }
+        .upload-preview.show { display: block; }
+        .upload-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: var(--radius-md);
+        }
+        .file-info { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/profile.html" class="nav-link active">Profile</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="profile-container">
+            <div class="dashboard-header">
+                <h1>👤 My Profile</h1>
+                <p>Manage your account settings and preferences</p>
+            </div>
+
+            <div class="alert alert-info" style="margin-bottom: 1.5rem;">
+                <strong>🧪 Testing Practice:</strong> This page contains intentional validation gaps. Try testing boundary values, special characters, and file upload edge cases!
+            </div>
+
+            <div class="profile-header">
+                <div class="avatar-section">
+                    <div class="avatar" id="avatarDisplay">
+                        <span id="avatarInitial">?</span>
+                    </div>
+                    <label class="file-upload-label" for="avatarInput">
+                        📷 Change Photo
+                    </label>
+                    <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload(event)">
+                    <div class="upload-preview" id="uploadPreview">
+                        <img id="previewImage" src="" alt="Preview">
+                        <div class="file-info" id="fileInfo"></div>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h2 id="displayName">Loading...</h2>
+                    <p id="displayEmail">Loading...</p>
+                    <p id="displayCreated">Member since: Loading...</p>
+                    <span class="role-badge role-user" id="displayRole">User</span>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="form-section">
+                <h3>📝 Personal Information</h3>
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" class="form-control" placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Doe">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="john@example.com">
+                        <small style="color: var(--text-secondary);">Changing email may require re-login</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="+1 (555) 123-4567">
+                    </div>
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" class="form-control" rows="3" placeholder="Tell us about yourself..."></textarea>
+                        <small style="color: var(--text-secondary);"><span id="bioCount">0</span>/500 characters</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="form-section">
+                <h3>🔐 Change Password</h3>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" class="form-control" placeholder="Enter current password">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter new password" oninput="checkPasswordStrength()">
+                        <div class="password-strength">
+                            <div class="password-strength-fill" id="passwordStrength"></div>
+                        </div>
+                        <small style="color: var(--text-secondary);" id="passwordHint">Minimum 6 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm new password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">🔄 Update Password</button>
+                </form>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="form-section">
+                <h3>📦 Default Shipping Address</h3>
+                <form id="addressForm">
+                    <div class="form-group">
+                        <label for="street">Street Address</label>
+                        <input type="text" id="street" name="street" class="form-control" placeholder="123 Main Street">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" class="form-control" placeholder="New York">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State/Province</label>
+                            <input type="text" id="state" name="state" class="form-control" placeholder="NY">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zipCode">ZIP/Postal Code</label>
+                            <input type="text" id="zipCode" name="zipCode" class="form-control" placeholder="10001">
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" name="country" class="form-control">
+                                <option value="">Select Country</option>
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="AU">Australia</option>
+                                <option value="IN">India</option>
+                                <option value="DE">Germany</option>
+                                <option value="FR">France</option>
+                                <option value="JP">Japan</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Address</button>
+                </form>
+            </div>
+
+            <!-- Preferences -->
+            <div class="form-section">
+                <h3>⚙️ Preferences</h3>
+                <form id="preferencesForm">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="emailNotifications" name="emailNotifications">
+                            Receive email notifications for orders
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="marketingEmails" name="marketingEmails">
+                            Receive marketing and promotional emails
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="twoFactorAuth" name="twoFactorAuth">
+                            Enable two-factor authentication
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Preferences</button>
+                </form>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="form-section" style="border-color: #ef4444;">
+                <h3 style="color: #ef4444;">⚠️ Danger Zone</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Once you delete your account, there is no going back. Please be certain.</p>
+                <button class="btn" style="background: #ef4444; color: white;" onclick="deleteAccount()">🗑️ Delete Account</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadProfile() {
+            try {
+                const response = await API.users.getProfile();
+                const user = response.user || response;
+                
+                document.getElementById('displayName').textContent = user.name || 'Unknown';
+                document.getElementById('displayEmail').textContent = user.email || '';
+                document.getElementById('displayCreated').textContent = 'Member since: ' + 
+                    (user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown');
+                
+                const roleBadge = document.getElementById('displayRole');
+                roleBadge.textContent = user.role || 'user';
+                roleBadge.className = 'role-badge role-' + (user.role || 'user');
+                
+                // Set avatar initial
+                const initial = (user.name || 'U').charAt(0).toUpperCase();
+                document.getElementById('avatarInitial').textContent = initial;
+                
+                // Split name for form
+                const nameParts = (user.name || '').split(' ');
+                document.getElementById('firstName').value = nameParts[0] || '';
+                document.getElementById('lastName').value = nameParts.slice(1).join(' ') || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('bio').value = user.bio || '';
+                updateBioCount();
+                
+                // Load address if exists
+                if (user.address) {
+                    document.getElementById('street').value = user.address.street || '';
+                    document.getElementById('city').value = user.address.city || '';
+                    document.getElementById('state').value = user.address.state || '';
+                    document.getElementById('zipCode').value = user.address.zipCode || '';
+                    document.getElementById('country').value = user.address.country || '';
+                }
+                
+                // Load preferences
+                if (user.preferences) {
+                    document.getElementById('emailNotifications').checked = user.preferences.emailNotifications !== false;
+                    document.getElementById('marketingEmails').checked = user.preferences.marketingEmails === true;
+                    document.getElementById('twoFactorAuth').checked = user.preferences.twoFactorAuth === true;
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showToast('Failed to load profile', 'error');
+            }
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const preview = document.getElementById('uploadPreview');
+            const previewImg = document.getElementById('previewImage');
+            const fileInfo = document.getElementById('fileInfo');
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showToast('File size must be less than 5MB', 'error');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.classList.add('show');
+                fileInfo.innerHTML = `
+                    <strong>File:</strong> ${file.name}<br>
+                    <strong>Size:</strong> ${(file.size / 1024).toFixed(1)} KB<br>
+                    <strong>Type:</strong> ${file.type}
+                `;
+                
+                // Update avatar display
+                document.getElementById('avatarDisplay').innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+            };
+            reader.readAsDataURL(file);
+
+            showToast('Avatar preview loaded (upload simulation)', 'success');
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newPassword').value;
+            const strengthBar = document.getElementById('passwordStrength');
+            const hint = document.getElementById('passwordHint');
+
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            strengthBar.className = 'password-strength-fill';
+            if (password.length === 0) {
+                strengthBar.style.width = '0%';
+                hint.textContent = 'Minimum 6 characters';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                hint.textContent = 'Weak password';
+            } else if (strength <= 3) {
+                strengthBar.classList.add('strength-medium');
+                hint.textContent = 'Medium strength';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                hint.textContent = 'Strong password';
+            }
+        }
+
+        function updateBioCount() {
+            const bio = document.getElementById('bio').value;
+            document.getElementById('bioCount').textContent = bio.length;
+        }
+
+        document.getElementById('bio').addEventListener('input', updateBioCount);
+
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
+            
+            try {
+                await API.users.updateProfile({
+                    name: name.trim(),
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    bio: document.getElementById('bio').value
+                });
+                showToast('Profile updated successfully', 'success');
+            } catch (error) {
+                showToast(error.message || 'Failed to update profile', 'error');
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            try {
+                await API.users.updatePassword({
+                    currentPassword,
+                    newPassword
+                });
+                showToast('Password updated successfully', 'success');
+                document.getElementById('passwordForm').reset();
+                document.getElementById('passwordStrength').style.width = '0%';
+            } catch (error) {
+                showToast(error.message || 'Failed to update password', 'error');
+            }
+        });
+
+        document.getElementById('addressForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            try {
+                await API.users.updateProfile({
+                    address: {
+                        street: document.getElementById('street').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        zipCode: document.getElementById('zipCode').value,
+                        country: document.getElementById('country').value
+                    }
+                });
+                showToast('Address saved successfully', 'success');
+            } catch (error) {
+                showToast(error.message || 'Failed to save address', 'error');
+            }
+        });
+
+        document.getElementById('preferencesForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            try {
+                await API.users.updateProfile({
+                    preferences: {
+                        emailNotifications: document.getElementById('emailNotifications').checked,
+                        marketingEmails: document.getElementById('marketingEmails').checked,
+                        twoFactorAuth: document.getElementById('twoFactorAuth').checked
+                    }
+                });
+                showToast('Preferences saved successfully', 'success');
+            } catch (error) {
+                showToast(error.message || 'Failed to save preferences', 'error');
+            }
+        });
+
+        async function deleteAccount() {
+            if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                return;
+            }
+            if (!confirm('This will permanently delete all your data. Type "DELETE" to confirm:')) {
+                return;
+            }
+
+            try {
+                await API.users.deleteAccount();
+                showToast('Account deleted', 'success');
+                Auth.logout();
+                window.location.href = '/';
+            } catch (error) {
+                showToast(error.message || 'Failed to delete account', 'error');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+                background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#6366f1'};
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Check auth and load profile
+        if (!Auth.isAuthenticated()) {
+            window.location.href = '/pages/login.html?redirect=/pages/profile.html';
+        } else {
+            loadProfile();
+        }
+    </script>
+</body>
+</html>

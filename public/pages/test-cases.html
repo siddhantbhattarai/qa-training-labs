@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Case Templates - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .template-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .template-header {
+            background: var(--bg-hover);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .template-body {
+            padding: 1.5rem;
+        }
+        .test-case-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .test-case-table th, .test-case-table td {
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .test-case-table th {
+            background: var(--bg-hover);
+            font-weight: 600;
+        }
+        .test-case-table tr:nth-child(even) {
+            background: var(--bg-dark);
+        }
+        .status-pass { color: #22c55e; font-weight: 600; }
+        .status-fail { color: #ef4444; font-weight: 600; }
+        .status-blocked { color: #f59e0b; font-weight: 600; }
+        .priority-high { color: #ef4444; }
+        .priority-medium { color: #f59e0b; }
+        .priority-low { color: #22c55e; }
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/test-scenarios.html" class="nav-link">Test Scenarios</a>
+            <a href="/pages/test-cases.html" class="nav-link active">Test Cases</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="dashboard-header">
+            <h1>📝 Test Case Templates</h1>
+            <p>Learn professional test case documentation with these templates and examples</p>
+        </div>
+
+        <div class="alert alert-info" style="margin-bottom: 2rem;">
+            <strong>💡 Tip:</strong> Good test cases are clear, concise, and repeatable. Anyone should be able to execute them and get the same results.
+        </div>
+
+        <!-- Test Case Template -->
+        <div class="template-card">
+            <div class="template-header">
+                <h3>📋 Standard Test Case Template</h3>
+                <button class="btn btn-outline btn-sm download-btn" onclick="downloadTemplate()">
+                    📥 Download CSV
+                </button>
+            </div>
+            <div class="template-body">
+                <table class="test-case-table">
+                    <tr>
+                        <th width="20%">Field</th>
+                        <th>Description</th>
+                        <th width="30%">Example</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Test Case ID</strong></td>
+                        <td>Unique identifier for the test case</td>
+                        <td>TC-AUTH-001</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Title</strong></td>
+                        <td>Brief description of what is being tested</td>
+                        <td>Verify user login with valid credentials</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Module</strong></td>
+                        <td>Feature or component being tested</td>
+                        <td>Authentication</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Priority</strong></td>
+                        <td>High, Medium, or Low</td>
+                        <td><span class="priority-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Preconditions</strong></td>
+                        <td>Requirements before test execution</td>
+                        <td>User account exists, database seeded</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Test Steps</strong></td>
+                        <td>Numbered steps to execute the test</td>
+                        <td>1. Navigate to login page<br>2. Enter email<br>3. Enter password<br>4. Click Login</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Test Data</strong></td>
+                        <td>Specific data used for testing</td>
+                        <td>Email: admin@qalab.com<br>Password: Admin@1234</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Expected Result</strong></td>
+                        <td>What should happen if test passes</td>
+                        <td>User is redirected to dashboard, welcome message shown</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Actual Result</strong></td>
+                        <td>What actually happened (filled during execution)</td>
+                        <td>User redirected to dashboard successfully</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Status</strong></td>
+                        <td>Pass, Fail, or Blocked</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Comments</strong></td>
+                        <td>Additional notes or observations</td>
+                        <td>Response time: 450ms</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Example Test Cases -->
+        <h2 style="margin: 2rem 0 1rem;">📚 Example Test Cases</h2>
+
+        <div class="template-card">
+            <div class="template-header">
+                <h3>Authentication Test Cases</h3>
+            </div>
+            <div class="template-body" style="overflow-x: auto;">
+                <table class="test-case-table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Priority</th>
+                        <th>Steps</th>
+                        <th>Expected Result</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>TC-AUTH-001</td>
+                        <td>Login with valid credentials</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. Go to /login<br>2. Enter valid email/password<br>3. Click Login</td>
+                        <td>200 OK, JWT token returned, redirect to dashboard</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-AUTH-002</td>
+                        <td>Login with invalid password</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. Go to /login<br>2. Enter valid email<br>3. Enter wrong password<br>4. Click Login</td>
+                        <td>401 Unauthorized, error message "Invalid credentials"</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-AUTH-003</td>
+                        <td>Login with empty fields</td>
+                        <td><span class="priority-medium">Medium</span></td>
+                        <td>1. Go to /login<br>2. Leave fields empty<br>3. Click Login</td>
+                        <td>400 Bad Request, validation error messages</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-AUTH-004</td>
+                        <td>Register with valid data</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. Go to /register<br>2. Fill all fields validly<br>3. Submit</td>
+                        <td>201 Created, account created, auto-login</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-AUTH-005</td>
+                        <td>Register with weak password</td>
+                        <td><span class="priority-medium">Medium</span></td>
+                        <td>1. Go to /register<br>2. Enter password "123"<br>3. Submit</td>
+                        <td>400 Bad Request, password validation error</td>
+                        <td><span class="status-fail">FAIL</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-AUTH-006</td>
+                        <td>Access protected route without token</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. Clear localStorage<br>2. Try to access /dashboard</td>
+                        <td>Redirect to login page</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="template-card">
+            <div class="template-header">
+                <h3>Shopping Cart Test Cases</h3>
+            </div>
+            <div class="template-body" style="overflow-x: auto;">
+                <table class="test-case-table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Priority</th>
+                        <th>Steps</th>
+                        <th>Expected Result</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>TC-CART-001</td>
+                        <td>Add product to empty cart</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. Login<br>2. Go to Products<br>3. Click "Add to Cart"</td>
+                        <td>Item added, cart count updates, success message</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-CART-002</td>
+                        <td>Add same product twice</td>
+                        <td><span class="priority-medium">Medium</span></td>
+                        <td>1. Add product X<br>2. Add product X again</td>
+                        <td>Quantity should increase, not create duplicate</td>
+                        <td><span class="status-fail">FAIL</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-CART-003</td>
+                        <td>Add product with negative quantity</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. POST /api/cart/add with quantity: -1</td>
+                        <td>400 Bad Request, validation error</td>
+                        <td><span class="status-fail">FAIL</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-CART-004</td>
+                        <td>View cart with items</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. Add items to cart<br>2. Navigate to Cart page</td>
+                        <td>All items displayed with correct prices and total</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-CART-005</td>
+                        <td>Remove item from cart</td>
+                        <td><span class="priority-high">High</span></td>
+                        <td>1. Go to Cart<br>2. Click Remove on an item</td>
+                        <td>Item removed, total updated</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-CART-006</td>
+                        <td>Clear entire cart</td>
+                        <td><span class="priority-medium">Medium</span></td>
+                        <td>1. Go to Cart with items<br>2. Click "Clear All"</td>
+                        <td>Cart emptied, "Your cart is empty" message</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="template-card">
+            <div class="template-header">
+                <h3>API Test Cases</h3>
+            </div>
+            <div class="template-body" style="overflow-x: auto;">
+                <table class="test-case-table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Request</th>
+                        <th>Expected Response</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>TC-API-001</td>
+                        <td>/api/health</td>
+                        <td>GET</td>
+                        <td>No body</td>
+                        <td>200 OK, {status: "ok", database: {state: "connected"}}</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-API-002</td>
+                        <td>/api/products</td>
+                        <td>GET</td>
+                        <td>No body</td>
+                        <td>200 OK, Array of products</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-API-003</td>
+                        <td>/api/products/invalid</td>
+                        <td>GET</td>
+                        <td>Invalid ObjectId</td>
+                        <td>400 Bad Request</td>
+                        <td><span class="status-fail">FAIL (returns 500)</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-API-004</td>
+                        <td>/api/auth/login</td>
+                        <td>POST</td>
+                        <td>{"email": "admin@qalab.com", "password": "Admin@1234"}</td>
+                        <td>200 OK, accessToken + refreshToken</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-API-005</td>
+                        <td>/api/orders</td>
+                        <td>POST</td>
+                        <td>Valid shipping address + Auth header</td>
+                        <td>201 Created, order object</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>TC-API-006</td>
+                        <td>/api/cart</td>
+                        <td>GET</td>
+                        <td>Without Authorization header</td>
+                        <td>401 Unauthorized</td>
+                        <td><span class="status-pass">PASS</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bug Report Template -->
+        <h2 style="margin: 2rem 0 1rem;">🐛 Bug Report Template</h2>
+        
+        <div class="template-card">
+            <div class="template-header">
+                <h3>Professional Bug Report Format</h3>
+            </div>
+            <div class="template-body">
+                <table class="test-case-table">
+                    <tr>
+                        <th width="25%">Field</th>
+                        <th>Example</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Bug ID</strong></td>
+                        <td>BUG-001</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Title</strong></td>
+                        <td>Negative quantity accepted when adding items to cart</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Severity</strong></td>
+                        <td><span class="priority-high">High</span> (Critical / High / Medium / Low)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Priority</strong></td>
+                        <td><span class="priority-high">P1</span> (P1 / P2 / P3 / P4)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Environment</strong></td>
+                        <td>Production - https://qa-training-labs.onrender.com<br>Browser: Chrome 120<br>OS: Windows 11</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Steps to Reproduce</strong></td>
+                        <td>
+                            1. Login as any user<br>
+                            2. Open Postman or API client<br>
+                            3. POST to /api/cart/add with body: {"productId": "valid_id", "quantity": -5}<br>
+                            4. Include Authorization: Bearer token<br>
+                            5. Send request
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Expected Result</strong></td>
+                        <td>API should return 400 Bad Request with message "Quantity must be positive"</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Actual Result</strong></td>
+                        <td>API returns 200 OK and adds item with negative quantity. Cart total becomes negative.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Screenshot/Evidence</strong></td>
+                        <td>[Attach Postman screenshot showing the response]</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Impact</strong></td>
+                        <td>Users could exploit this to get negative cart totals, potentially leading to financial issues</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Suggested Fix</strong></td>
+                        <td>Add validation in /api/cart/add to check quantity > 0 before adding to cart</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-body">
+                <h3>📥 Downloadable Templates</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Download these templates to use in your testing projects:</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="downloadTestCaseTemplate()">📋 Test Case Template (CSV)</button>
+                    <button class="btn btn-outline" onclick="downloadBugReportTemplate()">🐛 Bug Report Template (CSV)</button>
+                    <button class="btn btn-outline" onclick="downloadTestPlan()">📑 Test Plan Template (TXT)</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        function downloadTestCaseTemplate() {
+            const csv = `Test Case ID,Title,Module,Priority,Preconditions,Test Steps,Test Data,Expected Result,Actual Result,Status,Comments
+TC-001,Example Test Case,Module Name,High,"User is logged in","1. Step one
+2. Step two
+3. Step three",Email: test@example.com,Expected outcome,Actual outcome,PASS,Notes here
+TC-002,,,,,,,,,,,`;
+            downloadFile(csv, 'test-case-template.csv', 'text/csv');
+        }
+
+        function downloadBugReportTemplate() {
+            const csv = `Bug ID,Title,Severity,Priority,Environment,Steps to Reproduce,Expected Result,Actual Result,Impact,Suggested Fix,Reporter,Date
+BUG-001,Example Bug Title,High,P1,"Production - URL, Browser, OS","1. Step one
+2. Step two",What should happen,What actually happened,Business impact,How to fix,Your Name,${new Date().toISOString().split('T')[0]}`;
+            downloadFile(csv, 'bug-report-template.csv', 'text/csv');
+        }
+
+        function downloadTestPlan() {
+            const text = `========================================
+TEST PLAN TEMPLATE
+========================================
+
+Project: QA Training Lab
+Version: 1.0
+Date: ${new Date().toISOString().split('T')[0]}
+Author: [Your Name]
+
+----------------------------------------
+1. INTRODUCTION
+----------------------------------------
+1.1 Purpose
+This test plan describes the testing approach for [feature/module].
+
+1.2 Scope
+- In Scope: [List features to test]
+- Out of Scope: [List features NOT being tested]
+
+----------------------------------------
+2. TEST OBJECTIVES
+----------------------------------------
+- Verify all functional requirements
+- Identify defects before production
+- Validate security requirements
+- Ensure performance meets standards
+
+----------------------------------------
+3. TEST STRATEGY
+----------------------------------------
+3.1 Test Types
+- [ ] Smoke Testing
+- [ ] Functional Testing
+- [ ] Regression Testing
+- [ ] API Testing
+- [ ] Security Testing
+- [ ] Performance Testing
+
+3.2 Test Levels
+- Unit Testing: Developers
+- Integration Testing: QA Team
+- System Testing: QA Team
+- UAT: Business Users
+
+----------------------------------------
+4. TEST ENVIRONMENT
+----------------------------------------
+URL: https://qa-training-labs.onrender.com
+Database: MongoDB Atlas
+Tools: Postman, Browser DevTools
+
+----------------------------------------
+5. TEST SCHEDULE
+----------------------------------------
+| Phase | Start Date | End Date |
+|-------|------------|----------|
+| Planning | | |
+| Test Design | | |
+| Execution | | |
+| Reporting | | |
+
+----------------------------------------
+6. TEST DELIVERABLES
+----------------------------------------
+- Test Cases Document
+- Bug Reports
+- Test Execution Report
+- Test Summary Report
+
+----------------------------------------
+7. ENTRY & EXIT CRITERIA
+----------------------------------------
+Entry Criteria:
+- Requirements finalized
+- Test environment ready
+- Test data prepared
+
+Exit Criteria:
+- All test cases executed
+- Critical bugs fixed
+- Test coverage > 80%
+
+----------------------------------------
+8. RISKS & MITIGATION
+----------------------------------------
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| Environment down | Medium | High | Have backup environment |
+| Resource unavailable | Low | Medium | Cross-train team members |
+
+----------------------------------------
+9. APPROVALS
+----------------------------------------
+Prepared by: _________________ Date: _______
+Reviewed by: _________________ Date: _______
+Approved by: _________________ Date: _______
+`;
+            downloadFile(text, 'test-plan-template.txt', 'text/plain');
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadTemplate() {
+            downloadTestCaseTemplate();
+        }
+    </script>
+</body>
+</html>

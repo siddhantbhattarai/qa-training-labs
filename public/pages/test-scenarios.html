@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scenarios - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .scenario-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .scenario-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .scenario-level {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .level-beginner { background: #22c55e20; color: #22c55e; }
+        .level-medium { background: #f59e0b20; color: #f59e0b; }
+        .level-advanced { background: #ef444420; color: #ef4444; }
+        .test-steps {
+            background: var(--bg-dark);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .test-steps ol {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+        .test-steps li {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+        .expected-result {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 3px solid #22c55e;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+        .exercise-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .tab-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/test-scenarios.html" class="nav-link active">Test Scenarios</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="dashboard-header">
+            <h1>📋 Test Scenarios & Exercises</h1>
+            <p>Practice real-world testing scenarios from beginner to advanced level</p>
+        </div>
+
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab('smoke')">🔥 Smoke Testing</button>
+            <button class="tab-btn" onclick="showTab('regression')">🔄 Regression Testing</button>
+            <button class="tab-btn" onclick="showTab('functional')">✅ Functional Testing</button>
+            <button class="tab-btn" onclick="showTab('api')">🔌 API Testing</button>
+            <button class="tab-btn" onclick="showTab('security')">🔒 Security Testing</button>
+            <button class="tab-btn" onclick="showTab('performance')">⚡ Performance Testing</button>
+        </div>
+
+        <!-- SMOKE TESTING -->
+        <div id="smoke" class="tab-content active">
+            <h2>🔥 Smoke Testing</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Smoke tests verify that the most critical functions work. Run these before detailed testing.
+            </p>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-beginner">BEGINNER</span> Basic Application Smoke Test</h3>
+                <p>Verify the application loads and core features are accessible.</p>
+                <div class="test-steps">
+                    <ol>
+                        <li>Open the application URL (https://qa-training-labs.onrender.com)</li>
+                        <li>Verify the home page loads without errors</li>
+                        <li>Click on "Products" - verify products page loads</li>
+                        <li>Click on "Login" - verify login page loads</li>
+                        <li>Click on "API Docs" - verify Swagger UI opens</li>
+                        <li>Check browser console for JavaScript errors</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Expected:</strong> All pages load within 5 seconds, no console errors, all navigation links work.
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="smoke1"> 
+                    <label for="smoke1">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-beginner">BEGINNER</span> Authentication Smoke Test</h3>
+                <p>Verify users can register and login successfully.</p>
+                <div class="test-steps">
+                    <ol>
+                        <li>Navigate to Register page</li>
+                        <li>Create a new account with valid details</li>
+                        <li>Verify registration success message</li>
+                        <li>Logout (if auto-logged in)</li>
+                        <li>Login with the new credentials</li>
+                        <li>Verify dashboard loads with user name</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Expected:</strong> User can register, login, and access dashboard. JWT token is stored.
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="smoke2"> 
+                    <label for="smoke2">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-beginner">BEGINNER</span> E-Commerce Flow Smoke Test</h3>
+                <p>Verify the core shopping flow works end-to-end.</p>
+                <div class="test-steps">
+                    <ol>
+                        <li>Login as a user</li>
+                        <li>Browse products page</li>
+                        <li>Add a product to cart</li>
+                        <li>View cart - verify item appears</li>
+                        <li>Proceed to checkout</li>
+                        <li>Complete order with shipping address</li>
+                        <li>Verify order appears in Orders page</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Expected:</strong> Complete purchase flow works. Order status shows "pending".
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="smoke3"> 
+                    <label for="smoke3">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> API Smoke Test with Postman</h3>
+                <p>Verify all critical API endpoints respond correctly.</p>
+                <div class="test-steps">
+                    <ol>
+                        <li>GET /api/health - Should return 200</li>
+                        <li>POST /api/seed - Should seed database</li>
+                        <li>POST /api/auth/login - Should return token</li>
+                        <li>GET /api/products - Should return product list</li>
+                        <li>POST /api/cart/add (with auth) - Should add item</li>
+                        <li>POST /api/orders (with auth) - Should create order</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Expected:</strong> All endpoints return expected status codes (200/201). Response times under 2 seconds.
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="smoke4"> 
+                    <label for="smoke4">I completed this exercise</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGRESSION TESTING -->
+        <div id="regression" class="tab-content">
+            <h2>🔄 Regression Testing</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Regression tests ensure existing functionality still works after changes. These are comprehensive test suites.
+            </p>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> User Management Regression Suite</h3>
+                <p>Complete test suite for user-related functionality.</p>
+                <div class="test-steps">
+                    <h4 style="margin: 1rem 0 0.5rem; color: var(--text-primary);">Registration Tests:</h4>
+                    <ol>
+                        <li>Register with valid data → Success</li>
+                        <li>Register with existing email → Should fail</li>
+                        <li>Register with invalid email format → Should fail</li>
+                        <li>Register with short password (&lt;6 chars) → Should fail</li>
+                        <li>Register with empty fields → Should fail</li>
+                        <li>Register with very long name (1000+ chars) → Check behavior</li>
+                    </ol>
+                    <h4 style="margin: 1rem 0 0.5rem; color: var(--text-primary);">Login Tests:</h4>
+                    <ol start="7">
+                        <li>Login with valid credentials → Success + token</li>
+                        <li>Login with wrong password → 401 error</li>
+                        <li>Login with non-existent email → Error</li>
+                        <li>Login with empty fields → 400 error</li>
+                        <li>Verify token works for protected routes</li>
+                        <li>Verify token expiration behavior</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Expected:</strong> All positive cases pass. Negative cases return appropriate errors. Document any bugs found!
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="reg1"> 
+                    <label for="reg1">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Product Catalog Regression Suite</h3>
+                <div class="test-steps">
+                    <h4 style="margin: 1rem 0 0.5rem; color: var(--text-primary);">Read Operations:</h4>
+                    <ol>
+                        <li>List all products → Returns array</li>
+                        <li>Get single product by ID → Returns product</li>
+                        <li>Get product with invalid ID → Should handle gracefully</li>
+                        <li>Get non-existent product → 404 error</li>
+                        <li>Search products by name → Filtered results</li>
+                        <li>Filter by category → Correct filtering</li>
+                    </ol>
+                    <h4 style="margin: 1rem 0 0.5rem; color: var(--text-primary);">Write Operations (Admin):</h4>
+                    <ol start="7">
+                        <li>Create product with valid data → 201 Created</li>
+                        <li>Create product with negative price → Check validation</li>
+                        <li>Create product with zero stock → Should work</li>
+                        <li>Update product price → Verify change</li>
+                        <li>Delete product → Verify removal</li>
+                        <li>Non-admin create product → Should be denied (403)</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="reg2"> 
+                    <label for="reg2">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Shopping Cart Regression Suite</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Add item to empty cart → Item added</li>
+                        <li>Add same item twice → Check if quantity increases or duplicates</li>
+                        <li>Add item with quantity 0 → Check validation</li>
+                        <li>Add item with negative quantity → Check validation</li>
+                        <li>Add out-of-stock item → Check behavior</li>
+                        <li>View cart → Shows all items with totals</li>
+                        <li>Remove item from cart → Item removed</li>
+                        <li>Clear entire cart → Cart empty</li>
+                        <li>Cart persists after logout/login → Check persistence</li>
+                        <li>Add more quantity than stock → Check validation</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="reg3"> 
+                    <label for="reg3">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-advanced">ADVANCED</span> Order Management Regression Suite</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Create order with items in cart → Order created</li>
+                        <li>Create order with empty cart → Check behavior</li>
+                        <li>Verify order total calculation → Math correct?</li>
+                        <li>Verify stock decreases after order → Check inventory</li>
+                        <li>View order history → All orders shown</li>
+                        <li>View single order details → Correct data</li>
+                        <li>Cancel pending order → Status changes</li>
+                        <li>Cancel already shipped order → Should fail</li>
+                        <li>View another user's order → Check authorization</li>
+                        <li>Cancel another user's order → Check authorization</li>
+                        <li>Verify stock restores on cancellation → Check inventory</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="reg4"> 
+                    <label for="reg4">I completed this exercise</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- FUNCTIONAL TESTING -->
+        <div id="functional" class="tab-content">
+            <h2>✅ Functional Testing</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Test each feature against its requirements. Focus on what the system should do.
+            </p>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-beginner">BEGINNER</span> Form Validation Testing</h3>
+                <p>Test all input forms for proper validation.</p>
+                <div class="test-steps">
+                    <h4 style="margin: 1rem 0 0.5rem; color: var(--text-primary);">Registration Form:</h4>
+                    <ol>
+                        <li>Submit empty form → Error messages for all fields</li>
+                        <li>Enter invalid email (no @) → Email validation error</li>
+                        <li>Enter mismatched passwords → Password match error</li>
+                        <li>Enter name with special characters → Check acceptance</li>
+                        <li>Enter extremely long values → Check max length</li>
+                    </ol>
+                    <h4 style="margin: 1rem 0 0.5rem; color: var(--text-primary);">Checkout Form:</h4>
+                    <ol start="6">
+                        <li>Submit with empty address → Validation error</li>
+                        <li>Enter invalid ZIP code format → Check validation</li>
+                        <li>Enter numbers in city field → Check acceptance</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="func1"> 
+                    <label for="func1">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-beginner">BEGINNER</span> Navigation Testing</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>All navbar links work correctly</li>
+                        <li>Logo links to home page</li>
+                        <li>Login/Logout buttons show based on auth state</li>
+                        <li>Protected pages redirect to login when not authenticated</li>
+                        <li>Back button works correctly</li>
+                        <li>Refresh maintains current state</li>
+                        <li>Direct URL access works for all pages</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="func2"> 
+                    <label for="func2">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Search & Filter Testing</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Search with exact product name → Find product</li>
+                        <li>Search with partial name → Find matching products</li>
+                        <li>Search with no results → Show "no products" message</li>
+                        <li>Filter by category → Only that category shown</li>
+                        <li>Combine search + filter → Both applied</li>
+                        <li>Clear filters → All products shown</li>
+                        <li>Search with special characters → No errors</li>
+                        <li>Search with SQL/NoSQL injection → No errors/exposure</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="func3"> 
+                    <label for="func3">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Boundary Value Testing</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Quantity: 0 (boundary) → Check behavior</li>
+                        <li>Quantity: 1 (minimum valid) → Should work</li>
+                        <li>Quantity: -1 (below minimum) → Should fail</li>
+                        <li>Quantity: 999999 (very large) → Check limit</li>
+                        <li>Price: 0.00 → Check if allowed</li>
+                        <li>Price: 0.01 (minimum) → Should work</li>
+                        <li>Price: -0.01 → Should fail</li>
+                        <li>Password: 5 chars (below min) → Should fail</li>
+                        <li>Password: 6 chars (at min) → Should work</li>
+                        <li>Password: 100 chars (long) → Should work</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="func4"> 
+                    <label for="func4">I completed this exercise</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- API TESTING -->
+        <div id="api" class="tab-content">
+            <h2>🔌 API Testing</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Test REST API endpoints using Postman or Swagger UI. Verify request/response handling.
+            </p>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-beginner">BEGINNER</span> HTTP Methods Testing</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>GET /api/products → 200 OK + product array</li>
+                        <li>POST /api/auth/login → 200 OK + tokens</li>
+                        <li>PUT /api/products/:id → 200 OK + updated product</li>
+                        <li>DELETE /api/products/:id → 200 OK + confirmation</li>
+                        <li>PATCH /api/orders/:id → 200 OK + updated order</li>
+                        <li>Wrong method (DELETE on /login) → Should return 404 or 405</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="api1"> 
+                    <label for="api1">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Status Code Verification</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Successful GET → 200 OK</li>
+                        <li>Successful POST (create) → 201 Created</li>
+                        <li>Missing required field → 400 Bad Request</li>
+                        <li>Invalid credentials → 401 Unauthorized</li>
+                        <li>Access denied (non-admin) → 403 Forbidden</li>
+                        <li>Resource not found → 404 Not Found</li>
+                        <li>Server error → 500 Internal Server Error</li>
+                        <li>Document any inconsistent status codes (BUGS!)</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="api2"> 
+                    <label for="api2">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Request/Response Validation</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Verify Content-Type header is application/json</li>
+                        <li>Verify response structure matches documentation</li>
+                        <li>Verify all required fields are present</li>
+                        <li>Verify data types are correct (string, number, boolean)</li>
+                        <li>Test with missing Content-Type header</li>
+                        <li>Test with wrong Content-Type (text/plain)</li>
+                        <li>Test with malformed JSON body</li>
+                        <li>Test with extra unexpected fields</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="api3"> 
+                    <label for="api3">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-advanced">ADVANCED</span> API Automation with Postman</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Import the Postman collection</li>
+                        <li>Set up environment variables (baseUrl, token)</li>
+                        <li>Write pre-request script to auto-login</li>
+                        <li>Write test scripts to validate responses</li>
+                        <li>Create test for each endpoint</li>
+                        <li>Run collection with Newman (CLI)</li>
+                        <li>Generate HTML test report</li>
+                        <li>Set up collection to run in CI/CD</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Example Postman Test:</strong>
+                    <pre style="background: var(--bg-dark); padding: 1rem; border-radius: 4px; margin-top: 0.5rem; overflow-x: auto;"><code>pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response has products array", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData).to.be.an('array');
+    pm.expect(jsonData.length).to.be.above(0);
+});</code></pre>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="api4"> 
+                    <label for="api4">I completed this exercise</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECURITY TESTING -->
+        <div id="security" class="tab-content">
+            <h2>🔒 Security Testing</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Test for common security vulnerabilities. This lab has intentional security bugs to find!
+            </p>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Authentication Security</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Try accessing protected endpoints without token → Should get 401</li>
+                        <li>Try using expired token → Should get 401</li>
+                        <li>Try using malformed token → Should get 401</li>
+                        <li>Try brute force login (many attempts) → Check rate limiting</li>
+                        <li>Check if password is hashed in database responses</li>
+                        <li>Verify token changes after password change</li>
+                        <li>Check token invalidation after logout</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="sec1"> 
+                    <label for="sec1">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Authorization Testing (IDOR)</h3>
+                <p>Insecure Direct Object Reference - can users access other users' data?</p>
+                <div class="test-steps">
+                    <ol>
+                        <li>Login as User A, get an order ID</li>
+                        <li>Login as User B</li>
+                        <li>Try to GET User A's order using the ID → Should be denied</li>
+                        <li>Try to DELETE User A's order → Should be denied</li>
+                        <li>Try to modify User A's cart → Should be denied</li>
+                        <li>Try to access /api/users (admin only) as regular user</li>
+                        <li>Document any IDOR vulnerabilities found!</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="sec2"> 
+                    <label for="sec2">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-advanced">ADVANCED</span> Injection Testing</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Try SQL injection in login: <code>' OR '1'='1</code></li>
+                        <li>Try NoSQL injection: <code>{"$gt": ""}</code> in email field</li>
+                        <li>Try XSS in product name: <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></li>
+                        <li>Try command injection in fields</li>
+                        <li>Check if inputs are sanitized</li>
+                        <li>Check if outputs are encoded</li>
+                        <li>Test for path traversal: <code>../../../etc/passwd</code></li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="sec3"> 
+                    <label for="sec3">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-advanced">ADVANCED</span> Mass Assignment Testing</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>During registration, try adding "role": "admin" to the request body</li>
+                        <li>Check if you become an admin</li>
+                        <li>Try adding "isActive": true when updating profile</li>
+                        <li>Try adding unexpected fields to any POST/PUT request</li>
+                        <li>Check which fields are protected vs exposed</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Security Bug Found?</strong> If you can set role:admin during registration, that's a critical vulnerability!
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="sec4"> 
+                    <label for="sec4">I completed this exercise</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- PERFORMANCE TESTING -->
+        <div id="performance" class="tab-content">
+            <h2>⚡ Performance Testing</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Test application speed, responsiveness, and stability under load.
+            </p>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-beginner">BEGINNER</span> Response Time Testing</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Use browser DevTools Network tab</li>
+                        <li>Measure page load time for Home page → Should be &lt;3s</li>
+                        <li>Measure API response time for GET /api/products → Should be &lt;500ms</li>
+                        <li>Measure login response time → Should be &lt;1s</li>
+                        <li>Measure order creation time → Should be &lt;2s</li>
+                        <li>Test on slow 3G network (DevTools throttling)</li>
+                    </ol>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="perf1"> 
+                    <label for="perf1">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-medium">MEDIUM</span> Load Testing Basics</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Open 5 browser tabs with the application</li>
+                        <li>Perform actions simultaneously</li>
+                        <li>Check if all requests complete successfully</li>
+                        <li>Check for any timeout errors</li>
+                        <li>Monitor response times during concurrent use</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Note:</strong> Free tier hosting may have limits. Document any performance degradation.
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="perf2"> 
+                    <label for="perf2">I completed this exercise</label>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <h3><span class="scenario-level level-advanced">ADVANCED</span> API Load Testing with Tools</h3>
+                <div class="test-steps">
+                    <ol>
+                        <li>Install a load testing tool (k6, Artillery, or Apache JMeter)</li>
+                        <li>Create a test script for GET /api/products</li>
+                        <li>Run with 10 virtual users for 30 seconds</li>
+                        <li>Analyze response times (avg, p95, p99)</li>
+                        <li>Identify the breaking point</li>
+                        <li>Generate a performance report</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Example k6 script:</strong>
+                    <pre style="background: var(--bg-dark); padding: 1rem; border-radius: 4px; margin-top: 0.5rem; overflow-x: auto;"><code>import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export let options = {
+  vus: 10,
+  duration: '30s',
+};
+
+export default function () {
+  let res = http.get('https://qa-training-labs.onrender.com/api/products');
+  check(res, { 'status is 200': (r) => r.status === 200 });
+  sleep(1);
+}</code></pre>
+                </div>
+                <div class="exercise-checkbox">
+                    <input type="checkbox" id="perf3"> 
+                    <label for="perf3">I completed this exercise</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-body" style="text-align: center;">
+                <h3>📊 Track Your Progress</h3>
+                <p style="color: var(--text-secondary);">Completed exercises are saved in your browser.</p>
+                <p id="progressDisplay" style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin: 1rem 0;">0 / 25 exercises completed</p>
+                <button class="btn btn-outline" onclick="resetExercises()">Reset Progress</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function loadProgress() {
+            const saved = JSON.parse(localStorage.getItem('qa_lab_exercises') || '[]');
+            saved.forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) checkbox.checked = true;
+            });
+            updateProgressDisplay();
+        }
+
+        function updateProgressDisplay() {
+            const total = document.querySelectorAll('.exercise-checkbox input').length;
+            const completed = document.querySelectorAll('.exercise-checkbox input:checked').length;
+            document.getElementById('progressDisplay').textContent = `${completed} / ${total} exercises completed`;
+        }
+
+        function resetExercises() {
+            if (confirm('Reset all exercise progress?')) {
+                localStorage.removeItem('qa_lab_exercises');
+                document.querySelectorAll('.exercise-checkbox input').forEach(cb => cb.checked = false);
+                updateProgressDisplay();
+            }
+        }
+
+        document.querySelectorAll('.exercise-checkbox input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                let saved = JSON.parse(localStorage.getItem('qa_lab_exercises') || '[]');
+                if (this.checked) {
+                    if (!saved.includes(this.id)) saved.push(this.id);
+                } else {
+                    saved = saved.filter(id => id !== this.id);
+                }
+                localStorage.setItem('qa_lab_exercises', JSON.stringify(saved));
+                updateProgressDisplay();
+            });
+        });
+
+        loadProgress();
+    </script>
+</body>
+</html>

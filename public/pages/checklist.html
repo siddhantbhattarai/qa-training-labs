@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Checklists - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .checklist-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .checklist-header {
+            background: var(--bg-hover);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .checklist-header:hover { background: var(--bg-dark); }
+        .checklist-header h3 { margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+        .checklist-progress { font-size: 0.85rem; color: var(--text-secondary); }
+        .checklist-body { padding: 1.5rem; }
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+        .checklist-item.checked label {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #22c55e);
+            transition: width 0.3s;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .summary-card h2 { margin-bottom: 0.5rem; }
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 1rem;
+        }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2rem; font-weight: 700; }
+        .stat-label { font-size: 0.85rem; opacity: 0.9; }
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: var(--primary); }
+        .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/test-scenarios.html" class="nav-link">Test Scenarios</a>
+            <a href="/pages/test-cases.html" class="nav-link">Test Cases</a>
+            <a href="/pages/checklist.html" class="nav-link active">Checklists</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container">
+        <div class="dashboard-header">
+            <h1>✅ QA Testing Checklists</h1>
+            <p>Interactive checklists for different types of testing. Track your progress as you learn!</p>
+        </div>
+
+        <div class="summary-card">
+            <h2>Your Testing Progress</h2>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCompleted">0</div>
+                    <div class="stat-label">Items Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalItems">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completionPercent">0%</div>
+                    <div class="stat-label">Completion</div>
+                </div>
+            </div>
+            <div class="progress-bar" style="margin-top: 1.5rem; height: 12px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                <div class="progress-fill" id="totalProgress" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterChecklists('all')">All</button>
+            <button class="filter-btn" onclick="filterChecklists('smoke')">🔥 Smoke</button>
+            <button class="filter-btn" onclick="filterChecklists('functional')">✅ Functional</button>
+            <button class="filter-btn" onclick="filterChecklists('api')">🔌 API</button>
+            <button class="filter-btn" onclick="filterChecklists('security')">🔒 Security</button>
+            <button class="filter-btn" onclick="filterChecklists('ui')">🎨 UI/UX</button>
+            <button class="btn btn-outline btn-sm" onclick="resetAllProgress()" style="margin-left: auto;">🔄 Reset All</button>
+        </div>
+
+        <!-- SMOKE TEST CHECKLIST -->
+        <div class="checklist-section" data-type="smoke">
+            <div class="checklist-header" onclick="toggleSection(this)">
+                <h3>🔥 Smoke Test Checklist</h3>
+                <span class="checklist-progress" data-section="smoke">0/10</span>
+            </div>
+            <div class="checklist-body">
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-1" onchange="updateProgress()">
+                    <label for="smoke-1"><strong>Application loads</strong> - Home page renders without errors</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-2" onchange="updateProgress()">
+                    <label for="smoke-2"><strong>No console errors</strong> - Browser console is clean on page load</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-3" onchange="updateProgress()">
+                    <label for="smoke-3"><strong>Navigation works</strong> - All menu links navigate correctly</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-4" onchange="updateProgress()">
+                    <label for="smoke-4"><strong>Login functional</strong> - User can log in with valid credentials</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-5" onchange="updateProgress()">
+                    <label for="smoke-5"><strong>Registration functional</strong> - New user can create account</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-6" onchange="updateProgress()">
+                    <label for="smoke-6"><strong>Products display</strong> - Product list loads with items</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-7" onchange="updateProgress()">
+                    <label for="smoke-7"><strong>Add to cart works</strong> - Items can be added to cart</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-8" onchange="updateProgress()">
+                    <label for="smoke-8"><strong>Checkout accessible</strong> - Cart and checkout pages load</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-9" onchange="updateProgress()">
+                    <label for="smoke-9"><strong>API health check</strong> - GET /api/health returns 200 OK</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="smoke-10" onchange="updateProgress()">
+                    <label for="smoke-10"><strong>Database connected</strong> - Health check shows connected state</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- FUNCTIONAL TEST CHECKLIST -->
+        <div class="checklist-section" data-type="functional">
+            <div class="checklist-header" onclick="toggleSection(this)">
+                <h3>✅ Functional Test Checklist</h3>
+                <span class="checklist-progress" data-section="functional">0/15</span>
+            </div>
+            <div class="checklist-body">
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-1" onchange="updateProgress()">
+                    <label for="func-1"><strong>Valid login</strong> - Correct credentials = successful login</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-2" onchange="updateProgress()">
+                    <label for="func-2"><strong>Invalid login</strong> - Wrong password shows error</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-3" onchange="updateProgress()">
+                    <label for="func-3"><strong>Empty form validation</strong> - Empty fields show validation errors</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-4" onchange="updateProgress()">
+                    <label for="func-4"><strong>Email format validation</strong> - Invalid email rejected</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-5" onchange="updateProgress()">
+                    <label for="func-5"><strong>Password requirements</strong> - Weak password rejected</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-6" onchange="updateProgress()">
+                    <label for="func-6"><strong>Duplicate registration</strong> - Existing email shows error</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-7" onchange="updateProgress()">
+                    <label for="func-7"><strong>Product listing</strong> - All products displayed correctly</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-8" onchange="updateProgress()">
+                    <label for="func-8"><strong>Add to cart</strong> - Item added with correct quantity</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-9" onchange="updateProgress()">
+                    <label for="func-9"><strong>Cart total</strong> - Total calculated correctly</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-10" onchange="updateProgress()">
+                    <label for="func-10"><strong>Remove from cart</strong> - Items can be removed</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-11" onchange="updateProgress()">
+                    <label for="func-11"><strong>Order placement</strong> - Checkout creates order</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-12" onchange="updateProgress()">
+                    <label for="func-12"><strong>Order history</strong> - Past orders viewable</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-13" onchange="updateProgress()">
+                    <label for="func-13"><strong>Logout</strong> - User properly logged out</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-14" onchange="updateProgress()">
+                    <label for="func-14"><strong>Session persistence</strong> - Refresh maintains login</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="func-15" onchange="updateProgress()">
+                    <label for="func-15"><strong>Protected routes</strong> - Unauthorized access redirected</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- API TEST CHECKLIST -->
+        <div class="checklist-section" data-type="api">
+            <div class="checklist-header" onclick="toggleSection(this)">
+                <h3>🔌 API Test Checklist</h3>
+                <span class="checklist-progress" data-section="api">0/15</span>
+            </div>
+            <div class="checklist-body">
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-1" onchange="updateProgress()">
+                    <label for="api-1"><strong>GET /api/health</strong> - Returns 200 with status info</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-2" onchange="updateProgress()">
+                    <label for="api-2"><strong>POST /api/seed</strong> - Seeding database works</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-3" onchange="updateProgress()">
+                    <label for="api-3"><strong>POST /api/auth/login</strong> - Returns JWT tokens</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-4" onchange="updateProgress()">
+                    <label for="api-4"><strong>POST /api/auth/register</strong> - Creates new user</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-5" onchange="updateProgress()">
+                    <label for="api-5"><strong>GET /api/products</strong> - Returns product array</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-6" onchange="updateProgress()">
+                    <label for="api-6"><strong>GET /api/products/:id</strong> - Returns single product</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-7" onchange="updateProgress()">
+                    <label for="api-7"><strong>POST /api/products</strong> - Admin can create product</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-8" onchange="updateProgress()">
+                    <label for="api-8"><strong>GET /api/cart</strong> - Returns user's cart</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-9" onchange="updateProgress()">
+                    <label for="api-9"><strong>POST /api/cart/add</strong> - Adds item to cart</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-10" onchange="updateProgress()">
+                    <label for="api-10"><strong>DELETE /api/cart/:id</strong> - Removes cart item</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-11" onchange="updateProgress()">
+                    <label for="api-11"><strong>POST /api/orders</strong> - Creates new order</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-12" onchange="updateProgress()">
+                    <label for="api-12"><strong>GET /api/orders</strong> - Returns user's orders</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-13" onchange="updateProgress()">
+                    <label for="api-13"><strong>Error responses</strong> - 4xx errors have messages</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-14" onchange="updateProgress()">
+                    <label for="api-14"><strong>Auth required</strong> - Protected routes return 401</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="api-15" onchange="updateProgress()">
+                    <label for="api-15"><strong>Content-Type</strong> - Responses are application/json</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECURITY TEST CHECKLIST -->
+        <div class="checklist-section" data-type="security">
+            <div class="checklist-header" onclick="toggleSection(this)">
+                <h3>🔒 Security Test Checklist</h3>
+                <span class="checklist-progress" data-section="security">0/12</span>
+            </div>
+            <div class="checklist-body">
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-1" onchange="updateProgress()">
+                    <label for="sec-1"><strong>Token required</strong> - Protected routes reject without token</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-2" onchange="updateProgress()">
+                    <label for="sec-2"><strong>Invalid token</strong> - Malformed tokens rejected</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-3" onchange="updateProgress()">
+                    <label for="sec-3"><strong>Expired token</strong> - Expired tokens rejected</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-4" onchange="updateProgress()">
+                    <label for="sec-4"><strong>Password hashed</strong> - Passwords not in plain text</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-5" onchange="updateProgress()">
+                    <label for="sec-5"><strong>IDOR - Orders</strong> - Can't access others' orders</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-6" onchange="updateProgress()">
+                    <label for="sec-6"><strong>IDOR - Cart</strong> - Can't modify others' carts</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-7" onchange="updateProgress()">
+                    <label for="sec-7"><strong>Admin routes</strong> - Non-admin can't access admin endpoints</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-8" onchange="updateProgress()">
+                    <label for="sec-8"><strong>SQL injection</strong> - Tested SQL injection attempts</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-9" onchange="updateProgress()">
+                    <label for="sec-9"><strong>NoSQL injection</strong> - Tested NoSQL injection attempts</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-10" onchange="updateProgress()">
+                    <label for="sec-10"><strong>XSS prevention</strong> - Script tags are escaped</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-11" onchange="updateProgress()">
+                    <label for="sec-11"><strong>Rate limiting</strong> - Brute force protection exists</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="sec-12" onchange="updateProgress()">
+                    <label for="sec-12"><strong>Mass assignment</strong> - Can't set role:admin on register</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- UI/UX TEST CHECKLIST -->
+        <div class="checklist-section" data-type="ui">
+            <div class="checklist-header" onclick="toggleSection(this)">
+                <h3>🎨 UI/UX Test Checklist</h3>
+                <span class="checklist-progress" data-section="ui">0/12</span>
+            </div>
+            <div class="checklist-body">
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-1" onchange="updateProgress()">
+                    <label for="ui-1"><strong>Responsive design</strong> - Works on mobile/tablet/desktop</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-2" onchange="updateProgress()">
+                    <label for="ui-2"><strong>Loading states</strong> - Spinners shown during loading</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-3" onchange="updateProgress()">
+                    <label for="ui-3"><strong>Error messages</strong> - Errors displayed clearly to user</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-4" onchange="updateProgress()">
+                    <label for="ui-4"><strong>Success feedback</strong> - Confirmations for actions</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-5" onchange="updateProgress()">
+                    <label for="ui-5"><strong>Form labels</strong> - All inputs have proper labels</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-6" onchange="updateProgress()">
+                    <label for="ui-6"><strong>Placeholder text</strong> - Helpful hints in inputs</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-7" onchange="updateProgress()">
+                    <label for="ui-7"><strong>Button states</strong> - Hover/active/disabled states work</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-8" onchange="updateProgress()">
+                    <label for="ui-8"><strong>Navigation visible</strong> - Current page highlighted in nav</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-9" onchange="updateProgress()">
+                    <label for="ui-9"><strong>Empty states</strong> - Friendly messages for empty lists</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-10" onchange="updateProgress()">
+                    <label for="ui-10"><strong>Typography readable</strong> - Font sizes appropriate</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-11" onchange="updateProgress()">
+                    <label for="ui-11"><strong>Color contrast</strong> - Text readable on backgrounds</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ui-12" onchange="updateProgress()">
+                    <label for="ui-12"><strong>Links visible</strong> - Links distinguishable from text</label>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        const STORAGE_KEY = 'qa_lab_checklist_progress';
+
+        function toggleSection(header) {
+            const body = header.nextElementSibling;
+            body.style.display = body.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function loadProgress() {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            Object.keys(saved).forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    checkbox.checked = saved[id];
+                    if (saved[id]) {
+                        checkbox.closest('.checklist-item').classList.add('checked');
+                    }
+                }
+            });
+            updateProgress();
+        }
+
+        function saveProgress() {
+            const progress = {};
+            document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => {
+                progress[cb.id] = cb.checked;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        }
+
+        function updateProgress() {
+            let totalCompleted = 0;
+            let totalItems = 0;
+
+            document.querySelectorAll('.checklist-section').forEach(section => {
+                const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+                const checked = section.querySelectorAll('input[type="checkbox"]:checked').length;
+                const total = checkboxes.length;
+                
+                totalCompleted += checked;
+                totalItems += total;
+
+                const progressSpan = section.querySelector('.checklist-progress');
+                if (progressSpan) {
+                    progressSpan.textContent = `${checked}/${total}`;
+                }
+
+                checkboxes.forEach(cb => {
+                    const item = cb.closest('.checklist-item');
+                    if (cb.checked) {
+                        item.classList.add('checked');
+                    } else {
+                        item.classList.remove('checked');
+                    }
+                });
+            });
+
+            document.getElementById('totalCompleted').textContent = totalCompleted;
+            document.getElementById('totalItems').textContent = totalItems;
+            const percent = totalItems > 0 ? Math.round((totalCompleted / totalItems) * 100) : 0;
+            document.getElementById('completionPercent').textContent = percent + '%';
+            document.getElementById('totalProgress').style.width = percent + '%';
+
+            saveProgress();
+        }
+
+        function filterChecklists(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.checklist-section').forEach(section => {
+                if (type === 'all' || section.dataset.type === type) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        function resetAllProgress() {
+            if (confirm('Are you sure you want to reset all checklist progress?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                    cb.closest('.checklist-item').classList.remove('checked');
+                });
+                updateProgress();
+            }
+        }
+
+        loadProgress();
+    </script>
+</body>
+</html>
