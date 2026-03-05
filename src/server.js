@@ -47,7 +47,7 @@ app.use(
       /* Hide default Swagger logo/link */
       .swagger-ui .topbar { 
         background: #1e293b;
-        padding: 12px 20px;
+        padding: 10px 20px;
       }
       .swagger-ui .topbar-wrapper { 
         display: flex;
@@ -57,15 +57,16 @@ app.use(
       .swagger-ui .topbar-wrapper .link {
         display: flex;
         align-items: center;
-        font-size: 1.1rem;
         text-decoration: none;
+        white-space: nowrap;
       }
       .swagger-ui .topbar-wrapper .link img { display: none; }
       .swagger-ui .topbar-wrapper .link::before { 
         content: '🧪 QA Training Lab'; 
         color: #fff;
         font-weight: 600;
-        font-size: 1.2rem;
+        font-size: 1rem;
+        white-space: nowrap;
       }
       
       /* Compact info section */
