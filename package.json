@@ -1,13 +1,14 @@
 {
   "name": "qa-training-lab",
-  "version": "1.0.0",
-  "description": "A intentionally buggy API for QA training purposes",
+  "version": "2.0.0",
+  "description": "A switchable, intentionally buggy app for learning QA — practise the same tests at Low/Medium/High difficulty, then diff against a Stable reference build.",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
+    "mongodb-memory-server": "^9.1.6",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

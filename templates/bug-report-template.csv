@@ -1,0 +1,4 @@
+ID,Title,Level,Severity,Priority,Status,Preconditions,Steps to Reproduce,Expected Result,Actual Result,Evidence,Reported By,Date,Notes
+BUG-001,"Cart accepts quantity 0 when adding an item",low,Medium,P3,New,"Logged in; product exists","1. POST /api/cart/add {productId, quantity:0}  2. GET /api/cart","400 Bad Request; item not added (per Stable build)","200 OK; cart shows 0-qty line",response.json,Your Name,2026-06-18,"100% reproducible; also accepts negatives"
+BUG-002,"",,,,New,"","","","","","",,
+BUG-003,"",,,,New,"","","","","","",,

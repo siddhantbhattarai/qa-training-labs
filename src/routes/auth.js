@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { authenticate } = require("../middleware/auth");
+const B = require("../lab/behaviors");
 
 const router = express.Router();
 
@@ -26,13 +27,17 @@ const generateTokens = (user) => {
  *     tags: [Auth]
  *     summary: Register a new user
  *     description: |
- *       Creates a new user account. 
- *       
- *       **🐛 Bugs to find:**
- *       - `role` field in body is accepted and applied directly (privilege escalation)
- *       - No email format validation
- *       - Password length check is only >= 6 (too weak)
- *       - Duplicate email returns 500 instead of 409
+ *       Creates a new account. **Behaviour changes with the difficulty level.**
+ *
+ *       **Defects to find (low):**
+ *       - The `role` field from the body is honoured — accounts are created
+ *         with permissions the user shouldn't be able to choose.
+ *       - No email-format validation ("not-an-email" is accepted).
+ *       - Password rule is weak (only length >= 6).
+ *       - A duplicate email returns **500** instead of **409 Conflict**.
+ *
+ *       At **medium/high** the obvious cases are fixed but boundary cases remain;
+ *       at **stable** registration is fully correct.
  *     requestBody:
  *       required: true
  *       content:
@@ -41,42 +46,33 @@ const generateTokens = (user) => {
  *             type: object
  *             required: [name, email, password]
  *             properties:
- *               name:
- *                 type: string
- *                 example: Jane Doe
- *               email:
- *                 type: string
- *                 example: jane@example.com
- *               password:
- *                 type: string
- *                 example: secret123
+ *               name: { type: string, example: Jane Doe }
+ *               email: { type: string, example: jane@example.com }
+ *               password: { type: string, example: secret123 }
  *               role:
  *                 type: string
  *                 example: admin
- *                 description: "⚠️ BUG: This field should be ignored but is applied"
+ *                 description: "Should be ignored — at low it is wrongly applied."
  *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Missing fields or password too short
- *       500:
- *         description: Server error (also fires on duplicate email — BUG)
+ *       201: { description: User registered }
+ *       400: { description: Validation error }
+ *       409: { description: Email already registered (medium+) }
  */
 router.post("/register", async (req, res) => {
+  const level = req.qaLevel;
   try {
     const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email and password are required" });
-    }
+    B.validateName(level, name);
+    B.validateEmail(level, email);
+    B.validatePassword(level, password);
 
-    // BUG #21: Password only checked >= 6 chars. No complexity requirement.
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
-    }
-
-    // BUG #22: role is accepted from body — anyone can self-register as admin
-    const user = new User({ name, email, password, role });
+    const user = new User({
+      name,
+      email,
+      password,
+      role: B.registerRole(level, role),
+    });
     await user.save();
 
     const { accessToken, refreshToken } = generateTokens(user);
@@ -85,13 +81,16 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json({
       message: "User registered successfully",
-      user: user.toSafeObject(),
+      user: B.serializeUser(level, user),
       accessToken,
       refreshToken,
     });
   } catch (err) {
-    // BUG #23: Duplicate key (email) error returns 500 + raw mongo error
-    res.status(500).json({ message: "Registration failed", error: err.message });
+    if (B.isDuplicateKey(err)) {
+      const { status, body } = B.duplicateEmailResponse(level);
+      return res.status(status).json(body);
+    }
+    B.sendError(res, level, err);
   }
 });
 
@@ -102,12 +101,10 @@ router.post("/register", async (req, res) => {
  *     tags: [Auth]
  *     summary: Login with email and password
  *     description: |
- *       Authenticates user and returns JWT tokens.
+ *       Authenticates a user and returns JWT tokens.
  *
- *       **🐛 Bugs to find:**
- *       - No rate limiting on login (brute-force possible)
- *       - `loginAttempts` is tracked but account is never locked
- *       - Returns same error message for wrong email vs wrong password (good) BUT response time differs (timing attack)
+ *       **Defect to find (low):** failed attempts are counted but the account
+ *       never locks. At **medium+** the account locks after repeated failures.
  *     requestBody:
  *       required: true
  *       content:
@@ -116,58 +113,38 @@ router.post("/register", async (req, res) => {
  *             type: object
  *             required: [email, password]
  *             properties:
- *               email:
- *                 type: string
- *                 example: admin@qalab.com
- *               password:
- *                 type: string
- *                 example: Admin@1234
+ *               email: { type: string, example: admin@qalab.com }
+ *               password: { type: string, example: Admin@1234 }
  *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *                 accessToken:
- *                   type: string
- *                 refreshToken:
- *                   type: string
- *       400:
- *         description: Missing credentials
- *       401:
- *         description: Invalid credentials
+ *       200: { description: Login successful }
+ *       400: { description: Missing credentials }
+ *       401: { description: Invalid credentials }
+ *       429: { description: Account locked (medium+) }
  */
 router.post("/login", async (req, res) => {
+  const level = req.qaLevel;
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
     const user = await User.findOne({ email });
-
     if (!user) {
-      // BUG #24: Returns 401 for missing user — timing is faster than wrong password
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const isMatch = await user.comparePassword(password);
+    B.assertNotLocked(level, user); // throws 429 when locked (medium+)
 
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      // Increment attempts but never lock — BUG #5 manifest
-      user.loginAttempts += 1;
+      B.recordLoginFailure(level, user);
       await user.save();
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     user.loginAttempts = 0;
+    user.lockUntil = null;
     user.lastLogin = new Date();
     const { accessToken, refreshToken } = generateTokens(user);
     user.refreshToken = refreshToken;
@@ -175,12 +152,12 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      user: user.toSafeObject(),
+      user: B.serializeUser(level, user),
       accessToken,
       refreshToken,
     });
   } catch (err) {
-    res.status(500).json({ message: "Login failed", error: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -191,11 +168,11 @@ router.post("/login", async (req, res) => {
  *     tags: [Auth]
  *     summary: Refresh access token
  *     description: |
- *       Exchange a valid refresh token for a new access token.
+ *       Exchanges a refresh token for a new access token.
  *
- *       **🐛 Bugs to find:**
- *       - JWT_REFRESH_SECRET is the same as JWT_SECRET (see .env) — refresh tokens are interchangeable
- *       - Old refresh token is NOT invalidated after refresh
+ *       **Defect to find (low):** the old refresh token is NOT invalidated —
+ *       a previously used refresh token still works. At **medium+** refresh
+ *       tokens are single-use (rotated on every refresh).
  *     requestBody:
  *       required: true
  *       content:
@@ -204,37 +181,39 @@ router.post("/login", async (req, res) => {
  *             type: object
  *             required: [refreshToken]
  *             properties:
- *               refreshToken:
- *                 type: string
+ *               refreshToken: { type: string }
  *     responses:
- *       200:
- *         description: New access token issued
- *       401:
- *         description: Invalid or missing refresh token
+ *       200: { description: New access token issued }
+ *       401: { description: Invalid or missing refresh token }
  */
 router.post("/refresh", async (req, res) => {
+  const level = req.qaLevel;
   try {
     const { refreshToken } = req.body;
-
     if (!refreshToken) {
       return res.status(401).json({ message: "Refresh token required" });
     }
 
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await User.findById(decoded.id);
-
-    if (!user || user.refreshToken !== refreshToken) {
+    if (!user) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
-    const { accessToken, refreshToken: newRefresh } = generateTokens(user);
-    // BUG #25: Old refresh token stored in DB not immediately rotated/invalidated in all paths
-    user.refreshToken = newRefresh;
-    await user.save();
+    // medium+: the supplied token must be the current one (single-use rotation).
+    if (B.rotatesRefreshToken(level) && user.refreshToken !== refreshToken) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
 
-    res.json({ accessToken, refreshToken: newRefresh });
+    const tokens = generateTokens(user);
+    if (B.rotatesRefreshToken(level)) {
+      user.refreshToken = tokens.refreshToken;
+      await user.save();
+    }
+
+    res.json({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });
   } catch (err) {
-    res.status(401).json({ message: "Token refresh failed", error: err.message });
+    res.status(401).json({ message: "Token refresh failed" });
   }
 });
 
@@ -244,23 +223,26 @@ router.post("/refresh", async (req, res) => {
  *   post:
  *     tags: [Auth]
  *     summary: Logout current user
- *     description: Invalidates the stored refresh token server-side.
- *     security:
- *       - bearerAuth: []
+ *     description: |
+ *       Ends the session. **Defect to find (low/medium):** the access token
+ *       still works after logout. At **high/stable** the token is rejected
+ *       immediately.
+ *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
- *         description: Logged out
- *       401:
- *         description: Unauthorized
+ *       200: { description: Logged out }
+ *       401: { description: Unauthorized }
  */
 router.post("/logout", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
     req.user.refreshToken = null;
     await req.user.save();
-    // BUG #26: Access token is NOT blacklisted — still valid until expiry
+    if (B.blacklistOnLogout(level)) {
+      B.blacklistToken(req.token);
+    }
     res.json({ message: "Logged out successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Logout failed" });
+    B.sendError(res, level, err);
   }
 });
 
@@ -270,21 +252,17 @@ router.post("/logout", authenticate, async (req, res) => {
  *   get:
  *     tags: [Auth]
  *     summary: Get current user profile
- *     security:
- *       - bearerAuth: []
+ *     description: |
+ *       **Defect to find (low):** returns internal fields (password hash,
+ *       counters) that aren't part of the documented User schema. Compare the
+ *       response body against the schema in the API docs.
+ *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
- *         description: Current user data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       401:
- *         description: Unauthorized
+ *       200: { description: Current user data }
+ *       401: { description: Unauthorized }
  */
 router.get("/me", authenticate, (req, res) => {
-  // BUG #27: Returns full user object without calling toSafeObject — exposes loginAttempts, etc.
-  res.json(req.user);
+  res.json(B.serializeUser(req.qaLevel, req.user));
 });
 
 module.exports = router;

@@ -1,4 +1,13 @@
 require("dotenv").config();
+
+// Zero-config safety net: provide dev fallbacks so `npm start` works with no
+// .env at all. Override these in .env / your host for anything real.
+process.env.JWT_SECRET = process.env.JWT_SECRET || "qa-lab-dev-access-secret-change-me-please";
+process.env.JWT_REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET || "qa-lab-dev-refresh-secret-change-me-please";
+process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
+process.env.JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
+
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
@@ -6,6 +15,9 @@ const rateLimit = require("express-rate-limit");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const { connectDB, getConnectionStatus } = require("./config/db");
+const { attachLevel } = require("./lab/level");
+const { errorEnvelope } = require("./lab/behaviors");
+const { seedIfEmpty, scheduleAutoReset } = require("./lab/seedData");
 
 // Route imports
 const authRoutes = require("./routes/auth");
@@ -14,15 +26,31 @@ const cartRoutes = require("./routes/cart");
 const orderRoutes = require("./routes/orders");
 const userRoutes = require("./routes/users");
 const seedRoutes = require("./routes/seed");
+const labRoutes = require("./routes/lab");
 
 const app = express();
 
-// ─── Connect Database ──────────────────────────────────────────────────────────
-connectDB();
+// ─── Connect Database (then auto-seed if empty) ─────────────────────────────────
+connectDB().then(async () => {
+  try {
+    const seeded = await seedIfEmpty();
+    if (seeded) {
+      console.log(`🌱 Auto-seeded demo data (${seeded.products} products, 3 users)`);
+      console.log("   Admin: admin@qalab.com / Admin@1234   |   User: user@qalab.com / User@1234");
+    }
+  } catch (e) {
+    console.warn("⚠️  Auto-seed skipped:", e.message);
+  }
+  // Keep a shared lab tidy: wipe + re-seed on a schedule (default every 24h).
+  scheduleAutoReset();
+});
 
 // ─── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
+
+// Attach the active QA difficulty level (low/medium/high/stable) to every request.
+app.use(attachLevel);
 
 // ─── Serve Static Frontend ─────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, "../public")));
@@ -238,16 +266,21 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/seed", seedRoutes);
+app.use("/api/lab", labRoutes);
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.json({
     name: "🧪 QA Training Lab API",
-    version: "1.0.0",
+    version: "2.0.0",
     docs: "/api/docs",
     health: "/api/health",
-    seed: "POST /api/seed  ← Start here!",
-    description: "Intentionally buggy API for QA learning. Find all 58+ bugs!",
+    level: "GET/POST /api/lab/level  ← switch difficulty (low/medium/high/stable)",
+    seed: "POST /api/seed",
+    description:
+      "QA learning API with switchable difficulty. The same endpoint behaves " +
+      "differently per level — practise the same test from beginner to advanced, " +
+      "then diff against the 'stable' reference build.",
   });
 });
 
@@ -270,11 +303,9 @@ app.use((req, res) => {
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
-  // BUG: Leaks stack trace in non-production environments
-  res.status(500).json({
-    message: "Internal server error",
-    ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
-  });
+  // QA: at "low" the raw stack trace is returned to the client (a defect a
+  // tester should report); higher levels return a clean generic message.
+  res.status(500).json(errorEnvelope(req.qaLevel || "low", err));
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────

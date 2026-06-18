@@ -10,23 +10,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar">
+            <nav class="navbar">
         <div class="nav-brand">
             <span class="logo">🧪</span>
-            <span class="brand-text">QA Training Lab</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
         </div>
         <div class="nav-links">
             <a href="/" class="nav-link active">Home</a>
-            <a href="/pages/test-scenarios.html" class="nav-link">Test Scenarios</a>
-            <a href="/pages/checklist.html" class="nav-link">Checklists</a>
+            <a href="/pages/curriculum.html" class="nav-link">Curriculum</a>
+            <a href="/pages/tools.html" class="nav-link">Tools</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
             <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
-            <a href="/pages/guide.html" class="nav-link">Guide</a>
+            <a href="/pages/reporting.html" class="nav-link">Reporting</a>
             <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
         </div>
-        <div class="nav-auth" id="navAuth">
-            <a href="/pages/login.html" class="btn btn-outline">Login</a>
-            <a href="/pages/register.html" class="btn btn-primary">Sign Up</a>
-        </div>
+        <div class="nav-auth" id="navAuth"></div>
     </nav>
 
     <main>
@@ -39,12 +40,12 @@
                 </p>
                 <div class="hero-stats">
                     <div class="stat">
-                        <span class="stat-number">58+</span>
-                        <span class="stat-label">Hidden Bugs</span>
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">Difficulty Levels</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">20+</span>
-                        <span class="stat-label">API Endpoints</span>
+                        <span class="stat-number">40+</span>
+                        <span class="stat-label">QA Defects to Find</span>
                     </div>
                     <div class="stat">
                         <span class="stat-number">100%</span>
@@ -52,8 +53,8 @@
                     </div>
                 </div>
                 <div class="hero-actions">
-                    <a href="/pages/register.html" class="btn btn-primary btn-lg">Start Learning</a>
-                    <a href="/pages/guide.html" class="btn btn-outline btn-lg">View Guide</a>
+                    <a href="/pages/curriculum.html" class="btn btn-primary btn-lg">Start Learning</a>
+                    <a href="/pages/reporting.html" class="btn btn-outline btn-lg">Reporting Guide</a>
                 </div>
             </div>
             <div class="hero-visual">
@@ -116,7 +117,7 @@
                     <h3>Bug Hunting</h3>
                     <p>Find real bugs in a controlled environment. Practice bug reporting and learn common vulnerability patterns.</p>
                     <ul class="feature-list">
-                        <li>58+ intentional bugs</li>
+                        <li>4 switchable difficulty levels</li>
                         <li>Bug severity classification</li>
                         <li>Professional bug reports</li>
                         <li>Root cause analysis</li>
@@ -278,6 +279,7 @@
         </div>
     </footer>
 
+    <script src="/js/qalevel.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/app.js"></script>

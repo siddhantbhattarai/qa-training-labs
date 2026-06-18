@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .lvl { display:inline-block; padding:1px 8px; border-radius:10px; font-size:.72rem; font-weight:700; color:#0b1220; }
+        .lvl-low{background:#22c55e} .lvl-medium{background:#f59e0b} .lvl-high{background:#ef4444;color:#fff} .lvl-stable{background:#6366f1;color:#fff}
+        .mod{margin-bottom:1.25rem}
+        .mod .card-header{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+        .mod ul{margin:.5rem 0 0 1.1rem;color:var(--text-secondary);line-height:1.7}
+        .step-num{background:var(--bg-dark);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 auto}
+    </style>
+</head>
+<body>
+            <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/curriculum.html" class="nav-link active">Curriculum</a>
+            <a href="/pages/tools.html" class="nav-link">Tools</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/pages/reporting.html" class="nav-link">Reporting</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container" style="max-width: 920px;">
+        <div class="dashboard-header">
+            <h1>🎓 QA Curriculum — Beginner to Advanced</h1>
+            <p>Follow the modules in order. Each one tells you which <strong>difficulty level</strong> to set, what to test, and what to record.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:1.5rem;">
+            <div class="card-body">
+                <h3 style="margin-bottom:.5rem;">How the difficulty switch works</h3>
+                <p style="color:var(--text-secondary);">
+                    Use the <strong>Level</strong> dropdown in the top bar (just like DVWA's security selector).
+                    The <em>same</em> feature gets buggier or cleaner as you change it:
+                </p>
+                <ul style="margin:.6rem 0 0 1.1rem;color:var(--text-secondary);line-height:1.8;">
+                    <li><span class="lvl lvl-low">LOW</span> obvious functional defects — learn smoke &amp; functional testing.</li>
+                    <li><span class="lvl lvl-medium">MEDIUM</span> boundary &amp; negative cases — learn BVA &amp; equivalence partitioning.</li>
+                    <li><span class="lvl lvl-high">HIGH</span> subtle business-logic &amp; integration defects — learn exploratory &amp; regression testing.</li>
+                    <li><span class="lvl lvl-stable">STABLE</span> the correct reference build — learn expected behaviour &amp; use it as a regression baseline.</li>
+                </ul>
+                <p style="color:var(--text-secondary);margin-top:.6rem;">
+                    Tip: testers using Postman/curl can set <code>X-QA-Level: low</code> per request instead.
+                    New to the tooling? See <a href="/pages/tools.html">Tools You'll Use</a>.
+                </p>
+            </div>
+        </div>
+
+        <!-- MODULE 1 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">1</span><h2 class="card-title" style="margin:0;">Foundations &amp; Smoke Testing</h2><span class="lvl lvl-low">LOW</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Get the app running, learn the domain, and confirm the critical path works at all.</p>
+                <ul>
+                    <li>Run the app (<code>npm start</code>), open the home page, register and log in.</li>
+                    <li>Browse products, add to cart, place an order — end to end once.</li>
+                    <li>Do the <a href="/pages/checklist.html">Smoke Test checklist</a>.</li>
+                    <li><strong>Deliverable:</strong> a 10-line smoke test summary (what worked / what didn't).</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODULE 2 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">2</span><h2 class="card-title" style="margin:0;">Functional Testing &amp; Bug Hunting</h2><span class="lvl lvl-low">LOW</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Find the obvious functional defects and write your first bug reports.</p>
+                <ul>
+                    <li>Test each form and flow against what you'd expect.</li>
+                    <li>Open the <a href="/pages/bugs.html">Bug Hunt</a> and find as many Low defects as you can.</li>
+                    <li>Read the <a href="/pages/reporting.html">Reporting Guide</a> and file 5 proper bug reports.</li>
+                    <li><strong>Deliverable:</strong> 5 bug reports using the template.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODULE 3 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">3</span><h2 class="card-title" style="margin:0;">Boundary &amp; Negative Testing</h2><span class="lvl lvl-medium">MEDIUM</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Switch to <strong>Medium</strong>. The obvious bugs are fixed — now hunt the edges.</p>
+                <ul>
+                    <li>Apply <strong>Boundary Value Analysis</strong>: password length 7/8/9, quantity 0/1/stock/stock+1, discount 100/101.</li>
+                    <li>Apply <strong>Equivalence Partitioning</strong> to the email field (valid / invalid classes).</li>
+                    <li>Re-test the Low bugs: which are fixed? (That's regression thinking.)</li>
+                    <li><strong>Deliverable:</strong> 8+ test cases (template) incl. negative cases, with results.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODULE 4 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">4</span><h2 class="card-title" style="margin:0;">API Testing</h2><span class="lvl lvl-medium">MEDIUM</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Test the API directly — status codes, schemas, and contracts.</p>
+                <ul>
+                    <li>Explore <a href="/api/docs" target="_blank">Swagger</a>; import the Postman collection in <code>/postman</code>.</li>
+                    <li>Set the difficulty with the <code>X-QA-Level</code> header and observe how responses change.</li>
+                    <li>Check status codes (400 vs 500 vs 404), and compare response bodies to the documented schema.</li>
+                    <li><strong>Deliverable:</strong> an API test run with at least 5 status-code/contract defects.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODULE 5 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">5</span><h2 class="card-title" style="margin:0;">Business-Logic &amp; Exploratory Testing</h2><span class="lvl lvl-high">HIGH</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Switch to <strong>High</strong>. The remaining defects only show up when you combine steps and track state.</p>
+                <ul>
+                    <li>Test multi-step flows: add to cart → change price → checkout (stale price?).</li>
+                    <li>Track stock through place-order → cancel cycles (is it restored?).</li>
+                    <li>Test the order status lifecycle for illegal transitions.</li>
+                    <li><strong>Deliverable:</strong> 2 exploratory session notes describing state-based defects.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODULE 6 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">6</span><h2 class="card-title" style="margin:0;">Regression Testing with the Stable Baseline</h2><span class="lvl lvl-stable">STABLE</span> <span class="lvl lvl-high">vs HIGH</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Use <strong>Stable</strong> as your "expected behaviour" oracle.</p>
+                <ul>
+                    <li>Run a test on a buggy level, then the same test on Stable, and diff the results.</li>
+                    <li>Build a small regression suite: one row per test, expected (Stable) vs actual (level).</li>
+                    <li><strong>Deliverable:</strong> a regression test sheet (test-case template) covering cart &amp; orders.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODULE 7 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">7</span><h2 class="card-title" style="margin:0;">Reporting &amp; Test Summary</h2><span class="lvl lvl-stable">ALL LEVELS</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Turn your findings into professional artifacts.</p>
+                <ul>
+                    <li>Polish your bug reports (severity vs priority, evidence, repro steps).</li>
+                    <li>Write a <strong>Test Summary Report</strong> for the cart/order area across levels.</li>
+                    <li>Read the full <a href="/pages/reporting.html">Reporting Guide</a> and grab the templates.</li>
+                    <li><strong>Deliverable:</strong> a portfolio-ready bug report set + one test summary.</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="card" style="margin-bottom:2rem;">
+            <div class="card-body" style="text-align:center;">
+                <p style="color:var(--text-secondary);">Ready? Set the level to <span class="lvl lvl-low">LOW</span> in the top bar and start Module 1.</p>
+                <a href="/pages/bugs.html" class="btn btn-primary">Go to Bug Hunt</a>
+                <a href="/pages/reporting.html" class="btn btn-outline">Reporting Guide</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/qalevel.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>App.init();</script>
+</body>
+</html>

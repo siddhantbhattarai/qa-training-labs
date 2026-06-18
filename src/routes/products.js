@@ -1,6 +1,7 @@
 const express = require("express");
 const Product = require("../models/Product");
 const { authenticate, requireAdmin } = require("../middleware/auth");
+const B = require("../lab/behaviors");
 
 const router = express.Router();
 
@@ -11,45 +12,42 @@ const router = express.Router();
  *     tags: [Products]
  *     summary: Get all products
  *     description: |
- *       Returns product list. Public endpoint.
+ *       Public product list.
  *
- *       **🐛 Bugs to find:**
- *       - No pagination — returns ALL products (performance issue at scale)
- *       - Inactive products (`isActive: false`) are returned to public users
- *       - `page` query param is accepted but silently ignored
+ *       **Defects to find (low):**
+ *       - Inactive/hidden products (`isActive: false`) are returned to shoppers.
+ *       - `page` is accepted but ignored — there is no pagination.
+ *
+ *       At **high/stable** inactive products are hidden and pagination works.
  *     parameters:
  *       - in: query
  *         name: category
- *         schema:
- *           type: string
- *         description: Filter by category
+ *         schema: { type: string }
  *       - in: query
  *         name: page
- *         schema:
- *           type: integer
- *         description: "⚠️ BUG: Accepted but ignored — no pagination implemented"
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer }
  *     responses:
- *       200:
- *         description: List of products
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Product'
+ *       200: { description: List of products }
  */
 router.get("/", async (req, res) => {
+  const level = req.qaLevel;
   try {
-    const { category } = req.query;
-    const filter = {};
+    const { filter, skip, limit, paginated, page } = B.buildProductListing(level, req.query);
+    let query = Product.find(filter);
+    if (paginated) query = query.skip(skip).limit(limit);
+    const products = await query;
+    const serialized = products.map((p) => B.serializeProduct(level, p));
 
-    if (category) filter.category = category;
-
-    // BUG #28: isActive filter NOT applied — deleted/hidden products are returned
-    const products = await Product.find(filter);
-    res.json(products);
+    if (paginated) {
+      const total = await Product.countDocuments(filter);
+      return res.json({ page, limit, total, products: serialized });
+    }
+    res.json(serialized);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch products" });
+    B.sendError(res, level, err);
   }
 });
 
@@ -60,36 +58,29 @@ router.get("/", async (req, res) => {
  *     tags: [Products]
  *     summary: Get product by ID
  *     description: |
- *       **🐛 Bugs to find:**
- *       - Invalid ObjectId format returns 500 (CastError) instead of 400
+ *       **Defect to find (low):** a malformed id returns **500** instead of a
+ *       clean **400/404**. At **medium+** the id is validated first.
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: string
+ *         schema: { type: string }
  *     responses:
- *       200:
- *         description: Product found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
- *       404:
- *         description: Product not found
- *       500:
- *         description: Server error (also fires on bad ID format — BUG)
+ *       200: { description: Product found }
+ *       400: { description: Invalid id (medium+) }
+ *       404: { description: Product not found }
  */
 router.get("/:id", async (req, res) => {
+  const level = req.qaLevel;
   try {
-    // BUG #29: No ObjectId validation — malformed ID throws CastError → 500
+    B.validateObjectId(level, req.params.id); // throws 400 at medium+
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res.json(product);
+    res.json(B.serializeProduct(level, product));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -98,14 +89,15 @@ router.get("/:id", async (req, res) => {
  * /api/products:
  *   post:
  *     tags: [Products]
- *     summary: Create a new product (Admin only)
+ *     summary: Create a product (Admin only)
  *     description: |
- *       **🐛 Bugs to find:**
- *       - Negative price is accepted (no min:0 validation)
- *       - Discount > 100% is accepted
- *       - Missing `name` returns 500 (validation error not caught properly)
- *     security:
- *       - bearerAuth: []
+ *       **Defects to find (low):**
+ *       - A negative price is accepted.
+ *       - A discount greater than 100% is accepted.
+ *       - A missing required field returns **500** instead of **400**.
+ *
+ *       Validation tightens at each level; **stable** validates everything.
+ *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
  *       content:
@@ -114,35 +106,22 @@ router.get("/:id", async (req, res) => {
  *             type: object
  *             required: [name, price]
  *             properties:
- *               name:
- *                 type: string
- *                 example: Mechanical Keyboard
- *               description:
- *                 type: string
- *                 example: TKL layout with blue switches
- *               price:
- *                 type: number
- *                 example: 79.99
- *               category:
- *                 type: string
- *                 example: Electronics
- *               stock:
- *                 type: integer
- *                 example: 50
- *               discount:
- *                 type: number
- *                 example: 10
+ *               name: { type: string, example: Mechanical Keyboard }
+ *               description: { type: string }
+ *               price: { type: number, example: 79.99 }
+ *               category: { type: string, example: Electronics }
+ *               stock: { type: integer, example: 50 }
+ *               discount: { type: number, example: 10 }
  *     responses:
- *       201:
- *         description: Product created
- *       403:
- *         description: Admin only
+ *       201: { description: Product created }
+ *       400: { description: Validation error (medium+) }
+ *       403: { description: Admin only }
  */
 router.post("/", authenticate, requireAdmin, async (req, res) => {
+  const level = req.qaLevel;
   try {
+    B.validateProductInput(level, req.body);
     const { name, description, price, category, stock, discount } = req.body;
-
-    // BUG #30: No server-side check for negative price or discount > 100
     const product = new Product({
       name,
       description,
@@ -152,13 +131,13 @@ router.post("/", authenticate, requireAdmin, async (req, res) => {
       discount,
       createdBy: req.user._id,
     });
-
     await product.save();
-    // BUG #31: Returns 201 but also returns the raw product with createdBy exposed
-    res.status(201).json({ message: "Product created", product });
+    res.status(201).json({
+      message: "Product created",
+      product: B.serializeProduct(level, product),
+    });
   } catch (err) {
-    // BUG #32: Mongoose validation error returns 500 instead of 400
-    res.status(500).json({ message: "Failed to create product", error: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -169,44 +148,36 @@ router.post("/", authenticate, requireAdmin, async (req, res) => {
  *     tags: [Products]
  *     summary: Update a product (Admin only)
  *     description: |
- *       **🐛 Bugs to find:**
- *       - Partial update replaces ALL fields not sent with undefined
- *       - `createdBy` can be overwritten via body
- *       - No check if product is active before updating
- *     security:
- *       - bearerAuth: []
+ *       **Defect to find (low):** the whole request body is written to the
+ *       record, so fields that shouldn't change (e.g. `createdBy`) can be
+ *       overwritten. At **high/stable** only known product fields are updated.
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Product'
+ *         schema: { type: string }
  *     responses:
- *       200:
- *         description: Product updated
- *       404:
- *         description: Not found
+ *       200: { description: Product updated }
+ *       404: { description: Not found }
  */
 router.put("/:id", authenticate, requireAdmin, async (req, res) => {
+  const level = req.qaLevel;
   try {
-    // BUG #33: Uses $set with entire req.body — attacker can inject any field
+    B.validateObjectId(level, req.params.id);
+    B.validateProductInput(level, req.body, { partial: true });
+    const update = B.pickProductUpdate(level, req.body);
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
-      { new: true }
+      { $set: update },
+      { new: true, runValidators: level !== "low" }
     );
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res.json({ message: "Product updated", product });
+    res.json({ message: "Product updated", product: B.serializeProduct(level, product) });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -217,35 +188,39 @@ router.put("/:id", authenticate, requireAdmin, async (req, res) => {
  *     tags: [Products]
  *     summary: Delete a product (Admin only)
  *     description: |
- *       Hard deletes the product from database.
- *
- *       **🐛 Bugs to find:**
- *       - Hard delete — product in existing carts/orders becomes orphaned reference
- *       - No check for existing cart/order references before deleting
- *     security:
- *       - bearerAuth: []
+ *       **Defect to find (low):** a hard delete leaves orphaned references in
+ *       existing carts and orders. At **high/stable** the product is soft-deleted
+ *       (`isActive: false`) so historical references stay valid.
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: string
+ *         schema: { type: string }
  *     responses:
- *       200:
- *         description: Product deleted
- *       404:
- *         description: Not found
+ *       200: { description: Product deleted }
+ *       404: { description: Not found }
  */
 router.delete("/:id", authenticate, requireAdmin, async (req, res) => {
+  const level = req.qaLevel;
   try {
-    // BUG #34: Hard delete with no check for references in Cart or Orders
-    const product = await Product.findByIdAndDelete(req.params.id);
+    B.validateObjectId(level, req.params.id);
+    let product;
+    if (B.productDeleteStrategy(level) === "soft") {
+      product = await Product.findByIdAndUpdate(
+        req.params.id,
+        { isActive: false },
+        { new: true }
+      );
+    } else {
+      product = await Product.findByIdAndDelete(req.params.id);
+    }
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
     res.json({ message: "Product deleted" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    B.sendError(res, level, err);
   }
 });
 

@@ -2,6 +2,7 @@ const express = require("express");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const { authenticate } = require("../middleware/auth");
+const B = require("../lab/behaviors");
 
 const router = express.Router();
 
@@ -11,36 +12,27 @@ const router = express.Router();
  *   get:
  *     tags: [Cart]
  *     summary: Get current user's cart
- *     security:
- *       - bearerAuth: []
+ *     description: |
+ *       **Defect to find (low):** the cart `total` is raw floating-point math
+ *       (e.g. 89.97000000000001). At **medium+** it is rounded to 2 decimals.
+ *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
- *         description: User's cart with items
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Cart'
+ *       200: { description: User's cart with items }
  */
 router.get("/", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
     const cart = await Cart.findOne({ user: req.user._id }).populate(
       "items.product",
       "name price stock isActive"
     );
-
     if (!cart) {
       return res.json({ user: req.user._id, items: [], total: 0 });
     }
-
-    // BUG #35: total uses floating-point math, not rounded (e.g. 29.99 * 3 = 89.97000000000001)
-    const total = cart.items.reduce(
-      (sum, item) => sum + item.priceAtAdd * item.quantity,
-      0
-    );
-
+    const total = B.computeCartTotal(level, cart.items);
     res.json({ ...cart.toObject(), total });
   } catch (err) {
-    res.status(500).json({ message: "Failed to get cart", error: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -51,15 +43,14 @@ router.get("/", authenticate, async (req, res) => {
  *     tags: [Cart]
  *     summary: Add item to cart
  *     description: |
- *       Adds a product to the user's cart. Creates cart if it doesn't exist.
+ *       **Defects to find (low):**
+ *       - `quantity: 0` or a negative quantity is accepted.
+ *       - Out-of-stock and inactive products can be added.
+ *       - Adding the same product twice creates duplicate lines instead of
+ *         merging quantities.
  *
- *       **🐛 Bugs to find:**
- *       - `quantity: 0` or negative quantity is accepted
- *       - Out-of-stock products can be added
- *       - Price snapshot is taken at add time but never refreshed (stale price bug)
- *       - Adding same product twice creates duplicate entry instead of incrementing quantity
- *     security:
- *       - bearerAuth: []
+ *       Each higher level closes one more of these gaps; **stable** is correct.
+ *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
  *       content:
@@ -68,51 +59,40 @@ router.get("/", authenticate, async (req, res) => {
  *             type: object
  *             required: [productId, quantity]
  *             properties:
- *               productId:
- *                 type: string
- *                 example: "64a1f2b3c4d5e6f7a8b9c0d1"
- *               quantity:
- *                 type: integer
- *                 example: 2
+ *               productId: { type: string }
+ *               quantity: { type: integer, example: 2 }
  *     responses:
- *       200:
- *         description: Item added to cart
- *       404:
- *         description: Product not found
+ *       200: { description: Item added }
+ *       400: { description: Invalid quantity (medium+) }
+ *       404: { description: Product not found }
+ *       409: { description: Out of stock / unavailable (medium+) }
  */
 router.post("/add", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
     const { productId, quantity } = req.body;
-
     if (!productId) {
       return res.status(400).json({ message: "productId is required" });
     }
+    B.validateObjectId(level, productId);
 
-    // BUG #36: quantity=0 or negative not rejected here
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // BUG #37: Stock check missing — can add out-of-stock items
-    // BUG #38: Inactive product check missing
+    const qty = B.validateCartAdd(level, product, quantity); // throws 400/409 at medium+
 
     let cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
       cart = new Cart({ user: req.user._id, items: [] });
     }
 
-    // BUG #39: Duplicate detection missing — same product pushed as new item
-    cart.items.push({
-      product: product._id,
-      quantity: quantity || 1,
-      priceAtAdd: product.price, // price snapshot (never updated — stale price bug)
-    });
-
+    B.addOrMergeCartItem(level, cart, product, qty);
     await cart.save();
     res.json({ message: "Item added to cart", cart });
   } catch (err) {
-    res.status(500).json({ message: "Failed to add item", error: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -123,40 +103,30 @@ router.post("/add", authenticate, async (req, res) => {
  *     tags: [Cart]
  *     summary: Remove item from cart
  *     description: |
- *       Removes a specific cart item by its subdocument ID.
- *
- *       **🐛 Bugs to find:**
- *       - Returns 200 even if item ID doesn't exist in the cart (silent failure)
- *     security:
- *       - bearerAuth: []
+ *       **Defect to find (low):** returns 200 even when the item id isn't in
+ *       the cart (silent failure). At **medium+** a missing item returns 404.
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: itemId
  *         required: true
- *         schema:
- *           type: string
+ *         schema: { type: string }
  *     responses:
- *       200:
- *         description: Item removed (even if not found — BUG)
- *       404:
- *         description: Cart not found
+ *       200: { description: Item removed }
+ *       404: { description: Item or cart not found }
  */
 router.delete("/remove/:itemId", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
-
-    // BUG #40: No check that itemId actually existed — always returns success
-    cart.items = cart.items.filter(
-      (item) => item._id.toString() !== req.params.itemId
-    );
-
+    B.removeCartItem(level, cart, req.params.itemId); // throws 404 at medium+ when missing
     await cart.save();
     res.json({ message: "Item removed", cart });
   } catch (err) {
-    res.status(500).json({ message: "Failed to remove item", error: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -166,16 +136,13 @@ router.delete("/remove/:itemId", authenticate, async (req, res) => {
  *   delete:
  *     tags: [Cart]
  *     summary: Clear entire cart
- *     description: Removes all items from the cart. No confirmation required.
- *     security:
- *       - bearerAuth: []
+ *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
- *         description: Cart cleared
- *       404:
- *         description: Cart not found
+ *       200: { description: Cart cleared }
+ *       404: { description: Cart not found }
  */
 router.delete("/clear", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
@@ -185,7 +152,7 @@ router.delete("/clear", authenticate, async (req, res) => {
     await cart.save();
     res.json({ message: "Cart cleared" });
   } catch (err) {
-    res.status(500).json({ message: "Failed to clear cart" });
+    B.sendError(res, level, err);
   }
 });
 
