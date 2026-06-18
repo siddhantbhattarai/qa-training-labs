@@ -1,5 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
 const User = require("../models/User");
 const { authenticate } = require("../middleware/auth");
 const B = require("../lab/behaviors");
@@ -12,8 +13,11 @@ const generateTokens = (user) => {
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
   );
+  // A unique jti makes every refresh token distinct, so single-use rotation
+  // (medium+) can actually invalidate the previous one — without it, two tokens
+  // minted in the same second would be byte-identical.
   const refreshToken = jwt.sign(
-    { id: user._id },
+    { id: user._id, jti: uuidv4() },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d" }
   );

@@ -209,7 +209,10 @@ router.patch("/:id/status", authenticate, requireAdmin, async (req, res) => {
     }
     B.validateStatusChange(level, order.status, req.body.status); // 400/409 at medium+
     order.status = req.body.status;
-    await order.save({ validateBeforeSave: level !== "low" ? true : false });
+    // Validation runs on save: at low an invalid enum value reaches here and
+    // surfaces as a 500 (the classic "wrong status code" defect); medium+ is
+    // already guarded above so only valid values get this far.
+    await order.save();
     res.json({ message: "Order status updated", order });
   } catch (err) {
     B.sendError(res, level, err);
