@@ -114,6 +114,17 @@ bug report (MD/CSV), test cases (CSV), test summary (MD).
 
 ---
 
+## 🎤 Interview prep
+
+Going for a QA role? The **[Interview Q&A bank](INTERVIEW-QUESTIONS.md)** has **87
+must-know questions with model answers** across 11 topics (fundamentals, test
+design, defect management, API testing, automation, SQL, scenario/behavioral, and
+more). The in-app version at `/pages/interview.html` lets you **filter by topic,
+search, and reveal answers** quiz-style — and many answers tie back to defects you
+can go practise in this very lab.
+
+---
+
 ## 🧰 Tools you'll use
 
 New to QA tooling? The **[Tools You'll Use guide](TOOLS-GUIDE.md)** (also in-app at
