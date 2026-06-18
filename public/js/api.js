@@ -9,10 +9,16 @@ const API = {
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
         const token = localStorage.getItem('qa_lab_token');
-        
+
+        // Attach the active QA difficulty level so the backend responds at the
+        // level the learner picked in the navbar switcher.
+        const qaLevel = (window.QALevel && QALevel.get && QALevel.get()) ||
+            localStorage.getItem('qa_level') || 'low';
+
         const config = {
             headers: {
                 'Content-Type': 'application/json',
+                'X-QA-Level': qaLevel,
                 ...(token && { 'Authorization': `Bearer ${token}` }),
                 ...options.headers
             },

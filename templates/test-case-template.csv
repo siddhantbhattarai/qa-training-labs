@@ -1,0 +1,5 @@
+TC ID,Feature,Title,Level,Type,Preconditions,Test Steps,Test Data,Expected Result,Actual Result,Status,Notes
+TC-001,Cart,"Add item with valid quantity",low,Functional,"Logged in","1. POST /api/cart/add  2. GET /api/cart","quantity:2","Item added; cart total correct",,Not Run,
+TC-002,Cart,"Add item with quantity 0 (negative test)",low,Negative,"Logged in","1. POST /api/cart/add","quantity:0","400; item not added",,Not Run,"BVA lower bound"
+TC-003,Cart,"Add item with quantity exceeding stock",medium,Boundary,"Logged in","1. POST /api/cart/add","quantity:9999","400/409; item not added",,Not Run,
+TC-004,Auth,"Register rejects weak password",medium,Negative,"none","1. POST /api/auth/register","password:'1234567'","400 password too weak",,Not Run,

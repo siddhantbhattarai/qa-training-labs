@@ -3,6 +3,9 @@ const User = require("../models/User");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
+const { authenticate, requireAdmin } = require("../middleware/auth");
+const { seedDatabase } = require("../lab/seedData");
+const B = require("../lab/behaviors");
 
 const router = express.Router();
 
@@ -11,70 +14,26 @@ const router = express.Router();
  * /api/seed:
  *   post:
  *     tags: [Dev Tools]
- *     summary: Seed database with demo data
+ *     summary: Seed the database with demo data
  *     description: |
- *       Populates the database with an admin user, sample products, and a demo user.
- *       Safe to call multiple times (uses upsert logic for admin).
+ *       Populates an admin, two demo users, and sample products (including a
+ *       few deliberate edge-case rows). Safe to call repeatedly.
  *
  *       **Seeded credentials:**
  *       - Admin: `admin@qalab.com` / `Admin@1234`
- *       - Demo User: `user@qalab.com` / `User@1234`
+ *       - User:  `user@qalab.com`  / `User@1234`
+ *       - User2: `user2@qalab.com` / `User@1234`
  *     responses:
- *       200:
- *         description: Seed complete
- *       500:
- *         description: Seed failed
+ *       200: { description: Seed complete }
+ *       500: { description: Seed failed }
  */
 router.post("/", async (req, res) => {
+  const level = req.qaLevel;
   try {
-    // Upsert admin
-    let admin = await User.findOne({ email: process.env.ADMIN_EMAIL || "admin@qalab.com" });
-    if (!admin) {
-      admin = await User.create({
-        name: "Lab Admin",
-        email: process.env.ADMIN_EMAIL || "admin@qalab.com",
-        password: process.env.ADMIN_PASSWORD || "Admin@1234",
-        role: "admin",
-      });
-    }
-
-    // Upsert demo user
-    let demoUser = await User.findOne({ email: "user@qalab.com" });
-    if (!demoUser) {
-      demoUser = await User.create({
-        name: "Demo User",
-        email: "user@qalab.com",
-        password: "User@1234",
-        role: "user",
-      });
-    }
-
-    // Products
-    await Product.deleteMany({});
-    const products = await Product.insertMany([
-      { name: "Wireless Mouse", description: "Ergonomic 2.4GHz wireless mouse", price: 29.99, category: "Electronics", stock: 100, discount: 0, createdBy: admin._id },
-      { name: "Mechanical Keyboard", description: "TKL layout, blue switches", price: 79.99, category: "Electronics", stock: 50, discount: 10, createdBy: admin._id },
-      { name: "USB-C Hub", description: "7-in-1 USB-C hub with HDMI", price: 45.00, category: "Electronics", stock: 75, discount: 5, createdBy: admin._id },
-      { name: "Desk Lamp", description: "LED adjustable desk lamp", price: 24.99, category: "Office", stock: 60, discount: 0, createdBy: admin._id },
-      { name: "Notebook A5", description: "200 page ruled notebook", price: 8.99, category: "Stationery", stock: 200, discount: 0, createdBy: admin._id },
-      { name: "Standing Desk", description: "Electric height-adjustable desk", price: 499.99, category: "Furniture", stock: 10, discount: 15, createdBy: admin._id },
-      { name: "Monitor Stand", description: "Adjustable monitor riser", price: 34.99, category: "Office", stock: 80, discount: 0, createdBy: admin._id },
-      { name: "Webcam HD", description: "1080p HD webcam with mic", price: 59.99, category: "Electronics", stock: 0, isActive: false, discount: 0, createdBy: admin._id },
-      // Intentional edge-case products for QA testing
-      { name: "Free Item", description: "Zero price — should this be allowed?", price: 0, category: "Test", stock: 999, discount: 0, createdBy: admin._id },
-      { name: "Overpriced Widget", description: "Discount exceeds 100%", price: 9.99, category: "Test", stock: 5, discount: 150, createdBy: admin._id },
-    ]);
-
-    res.json({
-      message: "✅ Database seeded successfully",
-      seeded: {
-        admin: { email: admin.email, password: "Admin@1234" },
-        user: { email: demoUser.email, password: "User@1234" },
-        products: products.length,
-      },
-    });
+    const seeded = await seedDatabase();
+    res.json({ message: "✅ Database seeded successfully", seeded });
   } catch (err) {
-    res.status(500).json({ message: "Seed failed", error: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -83,20 +42,28 @@ router.post("/", async (req, res) => {
  * /api/seed/reset:
  *   delete:
  *     tags: [Dev Tools]
- *     summary: Reset entire database
+ *     summary: Reset the entire database
  *     description: |
- *       ⚠️ **DANGER**: Wipes ALL collections (Users, Products, Carts, Orders).
- *       For lab/dev use only.
- *
- *       **🐛 Bugs to find:**
- *       - No authentication required — any anonymous user can wipe the DB
+ *       Wipes all collections. **Defect to find (low/medium):** this destructive
+ *       endpoint requires NO authentication — anyone can wipe the data. From
+ *       **high** it requires an authenticated admin.
  *     responses:
- *       200:
- *         description: All data deleted
+ *       200: { description: All data deleted }
+ *       401: { description: Auth required (high+) }
+ *       403: { description: Admin only (high+) }
  */
-router.delete("/reset", async (req, res) => {
+router.delete("/reset", async (req, res, next) => {
+  const level = req.qaLevel;
+  // At high/stable, gate the destructive action behind admin auth.
+  if (B.resetRequiresAdmin(level)) {
+    return authenticate(req, res, () => requireAdmin(req, res, () => doReset(req, res)));
+  }
+  return doReset(req, res);
+});
+
+async function doReset(req, res) {
+  const level = req.qaLevel;
   try {
-    // BUG #58: No auth on destructive endpoint — public DB wipe
     await Promise.all([
       User.deleteMany({}),
       Product.deleteMany({}),
@@ -105,8 +72,8 @@ router.delete("/reset", async (req, res) => {
     ]);
     res.json({ message: "⚠️ All data deleted. Call POST /api/seed to re-seed." });
   } catch (err) {
-    res.status(500).json({ message: "Reset failed", error: err.message });
+    B.sendError(res, level, err);
   }
-});
+}
 
 module.exports = router;

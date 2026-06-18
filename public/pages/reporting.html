@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporting Guide - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .rg table{width:100%;border-collapse:collapse;margin:.5rem 0 1rem;font-size:.9rem}
+        .rg th,.rg td{border:1px solid var(--border);padding:.5rem .6rem;text-align:left;vertical-align:top}
+        .rg th{background:var(--bg-dark)}
+        .rg h3{margin:1.4rem 0 .6rem}
+        .rg pre{background:var(--bg-dark);padding:1rem;border-radius:var(--radius-md);overflow-x:auto;font-size:.82rem;line-height:1.5}
+        .sev{font-weight:700;padding:1px 7px;border-radius:8px;font-size:.72rem}
+        .sev-crit{background:#7f1d1d;color:#fff}.sev-high{background:#ef4444;color:#fff}.sev-med{background:#f59e0b;color:#0b1220}.sev-low{background:#22c55e;color:#0b1220}
+        .dl{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem}
+    </style>
+</head>
+<body>
+        <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/curriculum.html" class="nav-link">Curriculum</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/pages/reporting.html" class="nav-link active">Reporting</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container rg" style="max-width: 920px;">
+        <div class="dashboard-header">
+            <h1>📝 QA Reporting Guide</h1>
+            <p>Finding a bug is half the job. Reporting it well is the other half.</p>
+        </div>
+
+        <section class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header"><h2 class="card-title">Anatomy of a great bug report</h2></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Answer four questions fast: <strong>What's wrong? How do I reproduce it? How bad is it? What did you expect?</strong></p>
+                <table>
+                    <tr><th>Field</th><th>What goes here</th></tr>
+                    <tr><td><strong>ID / Title</strong></td><td>Unique ref + one line: <em>[area] what + where</em></td></tr>
+                    <tr><td><strong>Environment</strong></td><td>Difficulty level, URL, browser, account</td></tr>
+                    <tr><td><strong>Preconditions</strong></td><td>State needed before the steps</td></tr>
+                    <tr><td><strong>Steps to Reproduce</strong></td><td>Numbered, exact, repeatable</td></tr>
+                    <tr><td><strong>Expected Result</strong></td><td>What should happen — cite the spec / Stable build</td></tr>
+                    <tr><td><strong>Actual Result</strong></td><td>What did happen, with evidence</td></tr>
+                    <tr><td><strong>Severity / Priority</strong></td><td>Impact + how soon to fix</td></tr>
+                    <tr><td><strong>Evidence</strong></td><td>Screenshot, response body, logs</td></tr>
+                </table>
+                <div class="alert alert-info" style="margin-top:.5rem;">
+                    💡 <strong>Pro tip:</strong> run the same steps at <code>X-QA-Level: stable</code> — whatever the Stable build does is your "Expected Result". Airtight every time.
+                </div>
+            </div>
+        </section>
+
+        <section class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header"><h2 class="card-title">Worked example</h2></div>
+            <div class="card-body">
+<pre><code>ID:        BUG-014
+Title:     Cart accepts quantity 0 when adding an item
+Env:       Level=Low, http://localhost:3000, Chrome, user@qalab.com
+Steps:     1. POST /api/cart/add { "productId": "&lt;id&gt;", "quantity": 0 }
+           2. GET /api/cart
+Expected:  Step 1 returns 400; item NOT added (verified on Stable)
+Actual:    Step 1 returns 200; cart shows a line with quantity 0
+Severity:  Medium     Priority: P3
+Evidence:  response-bug014.json
+Notes:     100% reproducible; also accepts negative quantities</code></pre>
+            </div>
+        </section>
+
+        <section class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header"><h2 class="card-title">Severity vs Priority</h2></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);"><strong>Severity</strong> = how badly it hurts the product. <strong>Priority</strong> = how soon to fix. They're independent.</p>
+                <table>
+                    <tr><th>Severity</th><th>Lab example</th></tr>
+                    <tr><td><span class="sev sev-crit">Critical</span></td><td>Open <code>/api/seed/reset</code> wipes the whole DB</td></tr>
+                    <tr><td><span class="sev sev-high">High</span></td><td>Register as admin; order charges stale price; stock never decremented</td></tr>
+                    <tr><td><span class="sev sev-med">Medium</span></td><td>Quantity 0 accepted; duplicate cart lines; 500 instead of 400</td></tr>
+                    <tr><td><span class="sev sev-low">Low</span></td><td>Float noise in cart total; over-long name accepted</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <section class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header"><h2 class="card-title">Templates</h2></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Grab these and start documenting. (Also in the repo's <code>/templates</code> folder.)</p>
+                <div class="dl">
+                    <button class="btn btn-outline btn-sm" onclick="dl('bug-md')">Bug report (.md)</button>
+                    <button class="btn btn-outline btn-sm" onclick="dl('bug-csv')">Bug log (.csv)</button>
+                    <button class="btn btn-outline btn-sm" onclick="dl('tc-csv')">Test cases (.csv)</button>
+                    <button class="btn btn-outline btn-sm" onclick="dl('summary-md')">Test summary (.md)</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" style="margin-bottom:2rem;">
+            <div class="card-header"><h2 class="card-title">Practice loop</h2></div>
+            <div class="card-body">
+                <ol style="color:var(--text-secondary);line-height:1.9;margin-left:1.1rem;">
+                    <li>Pick a feature + level (start Low).</li>
+                    <li>Write 3–5 test cases first (include negative &amp; boundary).</li>
+                    <li>Execute; file a bug report for each failure.</li>
+                    <li>Switch up a level and retest — note fixes &amp; new edge cases.</li>
+                    <li>Confirm "Expected" against Stable.</li>
+                    <li>Write a one-paragraph test summary.</li>
+                </ol>
+                <p style="color:var(--text-secondary);">Full write-up: see <code>REPORTING-GUIDE.md</code> in the repo.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/qalevel.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        App.init();
+        const TPL = {
+            'bug-md': ['bug-report-template.md', `# Bug Report — BUG-XXX
+
+| Field | Value |
+|-------|-------|
+| ID | BUG-XXX |
+| Title | [area] short description of what + where |
+| Environment | Level=low/medium/high/stable, URL, browser, account |
+| Severity | Critical / High / Medium / Low |
+| Priority | P1 / P2 / P3 / P4 |
+| Status | New |
+
+## Preconditions
+-
+
+## Steps to Reproduce
+1.
+2.
+
+## Expected Result
+> Tip: run the same steps at X-QA-Level: stable.
+
+## Actual Result
+
+## Evidence
+
+## Notes
+`],
+            'bug-csv': ['bug-log.csv', `ID,Title,Level,Severity,Priority,Status,Steps to Reproduce,Expected Result,Actual Result,Evidence,Notes
+BUG-001,"",low,Medium,P3,New,"","","","",""
+`],
+            'tc-csv': ['test-cases.csv', `TC ID,Feature,Title,Level,Type,Preconditions,Test Steps,Test Data,Expected Result,Actual Result,Status,Notes
+TC-001,Cart,"Add valid quantity",low,Functional,"Logged in","1. POST /api/cart/add","quantity:2","Item added",,Not Run,
+TC-002,Cart,"Add quantity 0",low,Negative,"Logged in","1. POST /api/cart/add","quantity:0","400; not added",,Not Run,"BVA"
+`],
+            'summary-md': ['test-summary.md', `# Test Summary Report
+
+Date:
+Tester:
+Scope:
+Build/Level:
+
+## Results
+- Executed:
+- Passed:
+- Failed:   (bug IDs)
+- Blocked:
+
+## Key risks
+
+## Regression note
+
+## Recommendation
+`]
+        };
+        function dl(key){
+            const [name, content] = TPL[key];
+            const blob = new Blob([content], {type:'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = name; a.click();
+            URL.revokeObjectURL(a.href);
+            if(window.App) App.showToast('Downloaded '+name, 'success', 2000);
+        }
+        window.dl = dl;
+    </script>
+</body>
+</html>

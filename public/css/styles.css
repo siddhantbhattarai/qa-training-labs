@@ -1427,3 +1427,51 @@ section {
         grid-template-columns: 1fr;
     }
 }
+
+/* ─── QA Difficulty Level Switcher ──────────────────────────────────────── */
+.qa-level-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.65rem;
+    margin: 0 0.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
+    border-radius: 8px;
+}
+.qa-level-switcher .qa-level-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+.qa-level-switcher .qa-level-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    font-weight: 600;
+}
+.qa-level-switcher select {
+    background: #0f172a;
+    color: #e2e8f0;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+    max-width: 230px;
+    cursor: pointer;
+}
+.qa-level-switcher select:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 1px;
+}
+@media (max-width: 768px) {
+    .qa-level-switcher {
+        order: 2;
+    }
+    .qa-level-switcher select {
+        max-width: 150px;
+    }
+}

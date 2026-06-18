@@ -3,6 +3,7 @@ const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const { authenticate, requireAdmin } = require("../middleware/auth");
+const B = require("../lab/behaviors");
 
 const router = express.Router();
 
@@ -11,18 +12,18 @@ const router = express.Router();
  * /api/orders:
  *   post:
  *     tags: [Orders]
- *     summary: Place an order from current cart
+ *     summary: Place an order from the current cart
  *     description: |
- *       Converts the user's cart into an order.
+ *       **Defects to find (low):**
+ *       - An empty cart still creates an order (total 0).
+ *       - Stock is NOT reduced — you can order more than exists.
+ *       - The cart is NOT cleared, so the same cart can be ordered again.
+ *       - No shipping address is required.
+ *       - The price charged is the stale snapshot from when the item was added,
+ *         not the product's current price.
  *
- *       **🐛 Bugs to find:**
- *       - Stock is NOT decremented on order — unlimited ordering
- *       - Cart is NOT cleared after order — can place duplicate orders
- *       - Total is recalculated from cart prices but not verified against product current price
- *       - Empty cart results in order with totalAmount: 0 (no validation)
- *       - shippingAddress is optional — orders can be placed with no address
- *     security:
- *       - bearerAuth: []
+ *       Each higher level fixes more of these; **stable** is correct end-to-end.
+ *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: false
  *       content:
@@ -33,68 +34,55 @@ const router = express.Router();
  *               shippingAddress:
  *                 type: object
  *                 properties:
- *                   street:
- *                     type: string
- *                     example: 123 Test Street
- *                   city:
- *                     type: string
- *                     example: QA City
- *                   country:
- *                     type: string
- *                     example: Testland
- *               notes:
- *                 type: string
- *                 example: Leave at door
+ *                   street: { type: string, example: 123 Test Street }
+ *                   city: { type: string, example: QA City }
+ *                   country: { type: string, example: Testland }
+ *               notes: { type: string }
  *     responses:
- *       201:
- *         description: Order placed
- *       400:
- *         description: Cart is empty
- *       404:
- *         description: Cart not found
+ *       201: { description: Order placed }
+ *       400: { description: Empty cart / missing address (medium+) }
+ *       404: { description: Cart not found }
  */
 router.post("/", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
-    const cart = await Cart.findOne({ user: req.user._id }).populate(
-      "items.product"
-    );
-
+    const cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    // BUG #41: Empty cart check exists but totalAmount will be 0 — no rejection
-    // BUG #42: No stock reservation or decrement
+    B.validateOrderPlacement(level, cart, req.body); // throws 400 at medium+
+
     const items = cart.items.map((item) => ({
       product: item.product._id,
       name: item.product.name,
       quantity: item.quantity,
-      price: item.priceAtAdd, // BUG #43: Uses stale snapshot price, not current price
+      price: B.orderLinePrice(level, item), // stale snapshot until "stable"
     }));
-
-    const totalAmount = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    const totalAmount = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
     const order = new Order({
       user: req.user._id,
       items,
       totalAmount,
-      // BUG #44: shippingAddress not validated — can be missing entirely
       shippingAddress: req.body.shippingAddress || {},
       notes: req.body.notes || "",
     });
-
     await order.save();
 
-    // BUG #45: Cart NOT cleared — same cart can generate multiple orders
-    // cart.items = [];
-    // await cart.save();
+    if (B.decrementsStockOnOrder(level)) {
+      for (const item of items) {
+        await Product.updateOne({ _id: item.product }, { $inc: { stock: -item.quantity } });
+      }
+    }
+    if (B.clearsCartAfterOrder(level)) {
+      cart.items = [];
+      await cart.save();
+    }
 
     res.status(201).json({ message: "Order placed successfully", order });
   } catch (err) {
-    res.status(500).json({ message: "Failed to place order", error: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -103,20 +91,18 @@ router.post("/", authenticate, async (req, res) => {
  * /api/orders:
  *   get:
  *     tags: [Orders]
- *     summary: Get current user's orders
- *     security:
- *       - bearerAuth: []
+ *     summary: Get the current user's orders
+ *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
- *         description: List of user's orders
+ *       200: { description: List of the user's orders }
  */
 router.get("/", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
-    // BUG #46: No pagination — fetches ALL orders for user
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
-    res.status(500).json({ message: "Failed to get orders" });
+    B.sendError(res, level, err);
   }
 });
 
@@ -126,21 +112,18 @@ router.get("/", authenticate, async (req, res) => {
  *   get:
  *     tags: [Orders]
  *     summary: Get ALL orders (Admin only)
- *     description: Returns all orders from all users.
- *     security:
- *       - bearerAuth: []
+ *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
- *         description: All orders
- *       403:
- *         description: Admin only
+ *       200: { description: All orders }
+ *       403: { description: Admin only }
  */
 router.get("/all", authenticate, requireAdmin, async (req, res) => {
+  const level = req.qaLevel;
   try {
     const orders = await Order.find().populate("user", "name email").sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
-    res.status(500).json({ message: "Failed to get orders" });
+    B.sendError(res, level, err);
   }
 });
 
@@ -149,35 +132,34 @@ router.get("/all", authenticate, requireAdmin, async (req, res) => {
  * /api/orders/{id}:
  *   get:
  *     tags: [Orders]
- *     summary: Get order by ID
+ *     summary: Get an order by ID
  *     description: |
- *       **🐛 Bugs to find:**
- *       - Any authenticated user can fetch any order by ID (IDOR vulnerability)
- *       - No ownership check
- *     security:
- *       - bearerAuth: []
+ *       The spec says a user may only view their OWN orders.
+ *       **Defect to find (low):** any logged-in user can read any order by id.
+ *       Fixed for viewing at **medium**, fully enforced at **high/stable**.
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: string
+ *         schema: { type: string }
  *     responses:
- *       200:
- *         description: Order details
- *       404:
- *         description: Not found
+ *       200: { description: Order details }
+ *       403: { description: Not your order (medium+) }
+ *       404: { description: Not found }
  */
 router.get("/:id", authenticate, async (req, res) => {
+  const level = req.qaLevel;
   try {
-    // BUG #47: IDOR — no check that order belongs to req.user
+    B.validateObjectId(level, req.params.id);
     const order = await Order.findById(req.params.id).populate("user", "name email");
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+    B.assertOrderAccess(level, order, req.user, "view"); // throws 403 at medium+
     res.json(order);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -188,18 +170,18 @@ router.get("/:id", authenticate, async (req, res) => {
  *     tags: [Orders]
  *     summary: Update order status (Admin only)
  *     description: |
- *       **🐛 Bugs to find:**
- *       - No state machine — status can jump from `pending` directly to `delivered`
- *       - Cancelled orders can be re-activated by setting status back to `pending`
- *       - Invalid status values return 500 (Mongoose enum error) instead of 400
- *     security:
- *       - bearerAuth: []
+ *       **Defects to find (low):**
+ *       - Status can jump anywhere (e.g. pending → delivered) with no lifecycle.
+ *       - An invalid status value returns **500** instead of **400**.
+ *
+ *       At **medium** the value is validated (400); at **high/stable** the full
+ *       lifecycle is enforced (409 on illegal transitions).
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: string
+ *         schema: { type: string }
  *     requestBody:
  *       required: true
  *       content:
@@ -211,32 +193,26 @@ router.get("/:id", authenticate, async (req, res) => {
  *               status:
  *                 type: string
  *                 enum: [pending, processing, shipped, delivered, cancelled]
- *                 example: shipped
  *     responses:
- *       200:
- *         description: Status updated
- *       404:
- *         description: Order not found
+ *       200: { description: Status updated }
+ *       400: { description: Invalid status (medium+) }
+ *       404: { description: Order not found }
+ *       409: { description: Illegal transition (high+) }
  */
 router.patch("/:id/status", authenticate, requireAdmin, async (req, res) => {
+  const level = req.qaLevel;
   try {
-    const { status } = req.body;
-
-    // BUG #48: No state machine validation — any -> any transition allowed
-    // BUG #49: Invalid status throws 500 instead of 400 (Mongoose enum validation error)
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true, runValidators: true }
-    );
-
+    B.validateObjectId(level, req.params.id);
+    const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
-
+    B.validateStatusChange(level, order.status, req.body.status); // 400/409 at medium+
+    order.status = req.body.status;
+    await order.save({ validateBeforeSave: level !== "low" ? true : false });
     res.json({ message: "Order status updated", order });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    B.sendError(res, level, err);
   }
 });
 
@@ -247,44 +223,52 @@ router.patch("/:id/status", authenticate, requireAdmin, async (req, res) => {
  *     tags: [Orders]
  *     summary: Cancel an order
  *     description: |
- *       Allows a user to cancel their own order.
+ *       **Defects to find (low):**
+ *       - Any user can cancel any order (ownership not checked).
+ *       - Already-delivered orders can be cancelled.
+ *       - Stock is not restored on cancellation.
  *
- *       **🐛 Bugs to find:**
- *       - Already-delivered orders can be cancelled
- *       - No stock restoration on cancellation
- *       - Any user can cancel any order (IDOR + no ownership check)
- *     security:
- *       - bearerAuth: []
+ *       Ownership is enforced from **high**; delivered orders are protected from
+ *       **high**; stock is restored at **stable**.
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: string
+ *         schema: { type: string }
  *     responses:
- *       200:
- *         description: Order cancelled
- *       404:
- *         description: Order not found
+ *       200: { description: Order cancelled }
+ *       403: { description: Not your order (high+) }
+ *       404: { description: Order not found }
+ *       409: { description: Cannot cancel (high+) }
  */
-router.patch("/:id/cancel", authenticate, async (req, res) => {
+async function cancelOrder(req, res) {
+  const level = req.qaLevel;
   try {
-    // BUG #50: IDOR — no ownership check. Any logged-in user can cancel any order.
+    B.validateObjectId(level, req.params.id);
     const order = await Order.findById(req.params.id);
-
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+    B.assertOrderAccess(level, order, req.user, "cancel"); // 403 at high+
+    B.assertCancellable(level, order); // 409 at medium+ when inappropriate
 
-    // BUG #51: No check for already-delivered — can cancel delivered orders
     order.status = "cancelled";
     await order.save();
 
-    // BUG #52: Stock NOT restored on cancellation
+    if (B.restoresStockOnCancel(level)) {
+      for (const item of order.items) {
+        await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } });
+      }
+    }
     res.json({ message: "Order cancelled", order });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    B.sendError(res, level, err);
   }
-});
+}
+
+// Accept both PATCH (canonical) and PUT (used by the original UI).
+router.patch("/:id/cancel", authenticate, cancelOrder);
+router.put("/:id/cancel", authenticate, cancelOrder);
 
 module.exports = router;

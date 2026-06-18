@@ -60,7 +60,12 @@ const userSchema = new mongoose.Schema(
     loginAttempts: {
       type: Number,
       default: 0,
-      // BUG #5: Tracked but never used to lock account
+      // QA: at higher levels this drives an account lock; at low it is ignored.
+    },
+    lockUntil: {
+      type: Date,
+      default: null,
+      // Set when an account is temporarily locked after too many failed logins (medium+).
     },
     lastLogin: {
       type: Date,
