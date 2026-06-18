@@ -2,7 +2,7 @@
 
 The toolkit for testing this lab. Each tool links to its site, with notes on
 **how to use it for this project**. Almost everything targets
-`http://localhost:3000`; set the difficulty with the **Level** dropdown or the
+`https://qa-training-labs.onrender.com`; set the difficulty with the **Level** dropdown or the
 `X-QA-Level` header.
 
 > In-app version: open **[/pages/tools.html](public/pages/tools.html)** while the lab is running.
@@ -21,12 +21,12 @@ The DVWA-style level control in the top bar.
 - In the browser: pick **Low → Medium → High → Stable** and re-run the same test.
 - For API tools: send a header.
   ```bash
-  curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: low"     # 500 (defect)
-  curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: stable"  # 400 (correct)
+  curl -s https://qa-training-labs.onrender.com/api/products/bad-id -H "X-QA-Level: low"     # 500 (defect)
+  curl -s https://qa-training-labs.onrender.com/api/products/bad-id -H "X-QA-Level: stable"  # 400 (correct)
   ```
 - *Tip:* write a bug report's **Expected Result** by running the same steps at `stable`.
 
-### 📘 [Swagger UI](http://localhost:3000/api/docs) — *API exploration, built in*
+### 📘 [Swagger UI](https://qa-training-labs.onrender.com/api/docs) — *API exploration, built in*
 Interactive docs at `/api/docs`, no install.
 - Browse endpoints and read the "Defects to find" notes.
 - **Try it out → Execute** to call an endpoint live.
@@ -34,7 +34,7 @@ Interactive docs at `/api/docs`, no install.
 
 ### 📮 [Postman](https://www.postman.com/downloads/) — *API testing*
 - **Import** `postman/QA-Training-Lab.postman_collection.json` + the environment in that folder.
-- Set `baseUrl` to `http://localhost:3000`.
+- Set `baseUrl` to `https://qa-training-labs.onrender.com`.
 - Add a header `X-QA-Level: low` to the collection to run a whole pass at one level; change it and re-run for **regression**.
 
 ### 🏃 [Newman](https://github.com/postmanlabs/newman) — *run Postman from the CLI (intro to automation/CI)*
@@ -48,11 +48,11 @@ Run at each level and compare which requests change — instant regression evide
 ### ⌨️ [curl](https://curl.se/) — *quick API checks, pre-installed*
 ```bash
 # Log in and grab a token
-TOKEN=$(curl -s localhost:3000/api/auth/login -H "Content-Type: application/json" \
+TOKEN=$(curl -s https://qa-training-labs.onrender.com/api/auth/login -H "Content-Type: application/json" \
   -d '{"email":"user@qalab.com","password":"User@1234"}' | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
 
 # Reproduce "quantity 0 accepted" at Low
-curl -i localhost:3000/api/cart/add -H "Authorization: Bearer $TOKEN" \
+curl -i https://qa-training-labs.onrender.com/api/cart/add -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" -H "X-QA-Level: low" \
   -d '{"productId":"PASTE_ID","quantity":0}'
 ```
@@ -60,12 +60,12 @@ Paste the exact command + response into your bug report's Steps/Evidence.
 
 ### 🔎 [jq](https://jqlang.github.io/jq/) — *read JSON responses*
 ```bash
-curl -s localhost:3000/api/products | jq '.[].name'
-curl -s localhost:3000/api/products -H "X-QA-Level: low" | jq 'length'
+curl -s https://qa-training-labs.onrender.com/api/products | jq '.[].name'
+curl -s https://qa-training-labs.onrender.com/api/products -H "X-QA-Level: low" | jq 'length'
 ```
 Quickly check e.g. "does the list still include the inactive *Webcam HD* product?" per level.
 
-### 📝 [Reporting Templates](http://localhost:3000/pages/reporting.html) — *document findings*
+### 📝 [Reporting Templates](https://qa-training-labs.onrender.com/pages/reporting.html) — *document findings*
 Bug report / test case / test summary templates (also in `templates/`). Fill one per defect; confirm the Expected Result against the **Stable** level.
 
 ### 🛠️ Optional extras

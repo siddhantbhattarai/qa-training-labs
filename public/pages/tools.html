@@ -45,7 +45,7 @@
         </div>
 
         <div class="alert alert-info" style="margin-bottom:1.5rem;">
-            💡 Almost everything works against <code>http://localhost:3000</code>. Set the difficulty with the <strong>Level</strong> dropdown (top bar) or the <code>X-QA-Level</code> header.
+            💡 Almost everything works against <code>https://qa-training-labs.onrender.com</code>. Set the difficulty with the <strong>Level</strong> dropdown (top bar) or the <code>X-QA-Level</code> header.
         </div>
 
         <!-- Browser + DevTools -->
@@ -69,8 +69,8 @@
                 <p class="howto">How to use it here:</p>
                 <p>• In the browser: pick <strong>Low → Medium → High → Stable</strong> from the dropdown and re-run the same test.<br>
                    • For API tools: send a header instead of clicking.</p>
-                <pre><code>curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: low"     # 500 (defect)
-curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: stable"  # 400 (correct)</code></pre>
+                <pre><code>curl -s https://qa-training-labs.onrender.com/api/products/bad-id -H "X-QA-Level: low"     # 500 (defect)
+curl -s https://qa-training-labs.onrender.com/api/products/bad-id -H "X-QA-Level: stable"  # 400 (correct)</code></pre>
                 <p>Tip: write your bug report's <em>Expected Result</em> by running the same steps at <code>stable</code>.</p>
             </div>
         </section>
@@ -95,7 +95,7 @@ curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: stable"  # 400 (corre
                 <p>The most popular API testing client. A ready collection ships with this repo.</p>
                 <p class="howto">How to use it here:</p>
                 <p>• <strong>Import</strong> <code>postman/QA-Training-Lab.postman_collection.json</code> and the environment in the same folder.<br>
-                   • Set the environment <code>baseUrl</code> to <code>http://localhost:3000</code>.<br>
+                   • Set the environment <code>baseUrl</code> to <code>https://qa-training-labs.onrender.com</code>.<br>
                    • Add a header <code>X-QA-Level: low</code> (Collection → … → Edit → Headers) to test a whole run at one level, then change it and re-run for regression.</p>
             </div>
         </section>
@@ -120,11 +120,11 @@ newman run postman/QA-Training-Lab.postman_collection.json \
             <div class="card-body">
                 <p>Already on macOS/Linux. Perfect for fast, repeatable one-liners in a bug report.</p>
                 <pre><code># Log in and grab a token
-TOKEN=$(curl -s localhost:3000/api/auth/login -H "Content-Type: application/json" \
+TOKEN=$(curl -s https://qa-training-labs.onrender.com/api/auth/login -H "Content-Type: application/json" \
   -d '{"email":"user@qalab.com","password":"User@1234"}' | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
 
 # Reproduce the "quantity 0 accepted" defect at Low
-curl -i localhost:3000/api/cart/add -H "Authorization: Bearer $TOKEN" \
+curl -i https://qa-training-labs.onrender.com/api/cart/add -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" -H "X-QA-Level: low" \
   -d '{"productId":"PASTE_ID","quantity":0}'</code></pre>
                 <p class="howto">How to use it here:</p>
@@ -137,8 +137,8 @@ curl -i localhost:3000/api/cart/add -H "Authorization: Bearer $TOKEN" \
             <div class="card-header"><h2 class="card-title">🔎 <a href="https://jqlang.github.io/jq/" target="_blank" rel="noopener">jq</a></h2><span class="tag">Read JSON responses</span></div>
             <div class="card-body">
                 <p>Pretty-prints and filters JSON so big responses are readable.</p>
-                <pre><code>curl -s localhost:3000/api/products | jq '.[].name'           # list product names
-curl -s localhost:3000/api/products -H "X-QA-Level: low" | jq 'length'</code></pre>
+                <pre><code>curl -s https://qa-training-labs.onrender.com/api/products | jq '.[].name'           # list product names
+curl -s https://qa-training-labs.onrender.com/api/products -H "X-QA-Level: low" | jq 'length'</code></pre>
                 <p class="howto">How to use it here:</p>
                 <p>Quickly check things like "does the list still include the inactive 'Webcam HD' product?" at each level.</p>
             </div>

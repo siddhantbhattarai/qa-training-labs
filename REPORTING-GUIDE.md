@@ -16,7 +16,7 @@ myself? How bad is it? What did you expect?**
 |-------|----------------|--------------------------|
 | **ID** | Unique reference | `BUG-014` |
 | **Title** | One line: *[area] what + where* | "Cart: quantity 0 is accepted when adding an item" |
-| **Environment** | Build/level, URL, browser, account | Level **Low**, `localhost:3000`, Chrome 124, user@qalab.com |
+| **Environment** | Build/level, URL, browser, account | Level **Low**, `qa-training-labs.onrender.com`, Chrome 124, user@qalab.com |
 | **Preconditions** | State needed before you start | Logged in; at least one product seeded |
 | **Steps to Reproduce** | Numbered, exact, repeatable | see below |
 | **Expected Result** | What *should* happen (cite the spec / Stable build) | "API rejects with 400; item not added" |
@@ -31,7 +31,7 @@ myself? How bad is it? What did you expect?**
 ```
 ID:            BUG-014
 Title:         Cart accepts quantity 0 when adding an item
-Environment:   Level=Low, http://localhost:3000, Chrome 124, user@qalab.com
+Environment:   Level=Low, https://qa-training-labs.onrender.com, Chrome 124, user@qalab.com
 Preconditions: Logged in; product "Wireless Mouse" exists
 Steps:
   1. POST /api/cart/add with body { "productId": "<id>", "quantity": 0 }
@@ -109,7 +109,7 @@ Test Summary — QA Training Lab
 Date:        2026-06-18
 Tester:      <name>
 Scope:       Cart & Orders, Levels Low + Medium
-Build/Level: Low, then Medium  (http://localhost:3000)
+Build/Level: Low, then Medium  (https://qa-training-labs.onrender.com)
 
 Executed:    24 test cases
   Passed:    17

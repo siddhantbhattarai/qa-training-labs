@@ -8,6 +8,11 @@ What makes it different: a **DVWA-style difficulty switch**. The *same* feature
 behaves differently at each level, so you practise the same test from
 **beginner → advanced**, then compare against a correct **reference build**.
 
+**🌐 Live demo:** <https://qa-training-labs.onrender.com>
+&nbsp;·&nbsp; [Curriculum](https://qa-training-labs.onrender.com/pages/curriculum.html)
+&nbsp;·&nbsp; [Tools](https://qa-training-labs.onrender.com/pages/tools.html)
+&nbsp;·&nbsp; [API docs](https://qa-training-labs.onrender.com/api/docs)
+
 > This is a **QA learning** lab, not a hacking lab. Every "bug" is a real-world
 > quality defect — wrong validation, wrong status codes, broken business rules,
 > data-integrity issues — the kind a tester finds and reports.
@@ -35,9 +40,11 @@ See the full **[defect matrix](SOLUTIONS/README.md)** (instructor answer keys).
 
 ---
 
-## 🚀 Quick start (zero-config)
+## 🚀 Quick start
 
-No database account, no Docker, nothing to configure:
+Prefer not to install anything? Just use the **[live demo](https://qa-training-labs.onrender.com)**.
+
+To run it yourself (zero-config — no database account, no Docker):
 
 ```bash
 git clone https://github.com/siddhantbhattarai/qa-training-labs.git
@@ -119,13 +126,16 @@ Newman, curl, jq, and the reporting templates.
 ## 🔌 Setting the level per request (API testers)
 
 ```bash
+# (Running locally? swap the host for http://localhost:3000)
+BASE=https://qa-training-labs.onrender.com
+
 # Same endpoint, two different behaviours:
-curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: low"     # -> 500 (defect)
-curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: stable"  # -> 400 (correct)
+curl -s $BASE/api/products/bad-id -H "X-QA-Level: low"     # -> 500 (defect)
+curl -s $BASE/api/products/bad-id -H "X-QA-Level: stable"  # -> 400 (correct)
 
 # Inspect / change the active level
-curl localhost:3000/api/lab/level
-curl -X POST localhost:3000/api/lab/level -H "Content-Type: application/json" -d '{"level":"medium"}'
+curl $BASE/api/lab/level
+curl -X POST $BASE/api/lab/level -H "Content-Type: application/json" -d '{"level":"medium"}'
 ```
 
 Precedence: `X-QA-Level` header → `qa_level` cookie (set by the UI) → default `low`.

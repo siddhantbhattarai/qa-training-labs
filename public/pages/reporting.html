@@ -70,7 +70,7 @@
             <div class="card-body">
 <pre><code>ID:        BUG-014
 Title:     Cart accepts quantity 0 when adding an item
-Env:       Level=Low, http://localhost:3000, Chrome, user@qalab.com
+Env:       Level=Low, https://qa-training-labs.onrender.com, Chrome, user@qalab.com
 Steps:     1. POST /api/cart/add { "productId": "&lt;id&gt;", "quantity": 0 }
            2. GET /api/cart
 Expected:  Step 1 returns 400; item NOT added (verified on Stable)
