@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools You'll Use - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .tool{margin-bottom:1.1rem}
+        .tool .card-header{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+        .tool .card-title{margin:0}
+        .tag{font-size:.68rem;font-weight:700;padding:1px 8px;border-radius:10px;background:var(--bg-dark);border:1px solid var(--border);color:var(--text-secondary)}
+        .tool p{color:var(--text-secondary);margin:.3rem 0}
+        .tool pre{background:var(--bg-dark);padding:.8rem 1rem;border-radius:var(--radius-md);overflow-x:auto;font-size:.82rem;line-height:1.5;margin:.5rem 0}
+        .tool a{color:#818cf8}
+        .howto{font-weight:600;color:var(--text-primary)}
+    </style>
+</head>
+<body>
+        <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/curriculum.html" class="nav-link">Curriculum</a>
+            <a href="/pages/tools.html" class="nav-link active">Tools</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/pages/reporting.html" class="nav-link">Reporting</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container" style="max-width: 920px;">
+        <div class="dashboard-header">
+            <h1>🧰 Tools You'll Use</h1>
+            <p>The toolkit for testing this lab. Every name is a clickable link, with notes on <strong>how to use it for this project</strong>.</p>
+        </div>
+
+        <div class="alert alert-info" style="margin-bottom:1.5rem;">
+            💡 Almost everything works against <code>http://localhost:3000</code>. Set the difficulty with the <strong>Level</strong> dropdown (top bar) or the <code>X-QA-Level</code> header.
+        </div>
+
+        <!-- Browser + DevTools -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">🌐 <a href="https://www.google.com/chrome/" target="_blank" rel="noopener">Web Browser</a> + <a href="https://developer.chrome.com/docs/devtools/" target="_blank" rel="noopener">DevTools</a></h2><span class="tag">Manual & UI testing · free</span></div>
+            <div class="card-body">
+                <p>Your main tool for manual and frontend testing. Press <strong>F12</strong> to open DevTools.</p>
+                <p class="howto">How to use it here:</p>
+                <p>• <strong>Network tab</strong> — click around the app and watch the real API requests/responses (status codes, bodies). Confirm the <code>X-QA-Level</code> response header to see which level you're testing.<br>
+                   • <strong>Console tab</strong> — read errors; the lab's <code>QALevel.get()</code> tells you the active level.<br>
+                   • <strong>Application → Cookies</strong> — see the <code>qa_level</code> cookie the switcher sets.</p>
+                <p>Try: open Network, add an item to the cart, and inspect the <code>POST /api/cart/add</code> call.</p>
+            </div>
+        </section>
+
+        <!-- Difficulty switcher -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">🎚️ <a href="/pages/curriculum.html">Difficulty Switcher</a> (built in)</h2><span class="tag">Core to this lab</span></div>
+            <div class="card-body">
+                <p>The DVWA-style level control in the top bar. The same feature gets buggier or cleaner as you change it.</p>
+                <p class="howto">How to use it here:</p>
+                <p>• In the browser: pick <strong>Low → Medium → High → Stable</strong> from the dropdown and re-run the same test.<br>
+                   • For API tools: send a header instead of clicking.</p>
+                <pre><code>curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: low"     # 500 (defect)
+curl -s localhost:3000/api/products/bad-id -H "X-QA-Level: stable"  # 400 (correct)</code></pre>
+                <p>Tip: write your bug report's <em>Expected Result</em> by running the same steps at <code>stable</code>.</p>
+            </div>
+        </section>
+
+        <!-- Swagger -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">📘 <a href="/api/docs" target="_blank">Swagger UI</a></h2><span class="tag">API exploration · built in</span></div>
+            <div class="card-body">
+                <p>Interactive API docs at <a href="/api/docs" target="_blank">/api/docs</a> — no install needed.</p>
+                <p class="howto">How to use it here:</p>
+                <p>• Browse every endpoint and read the "Defects to find" notes.<br>
+                   • Click <strong>Try it out → Execute</strong> to call an endpoint live.<br>
+                   • Use <strong>Authorize</strong> (top right) to paste a JWT from login so protected routes work.</p>
+                <p>Start with <code>POST /api/auth/login</code> (admin@qalab.com / Admin@1234), copy the <code>accessToken</code>, then Authorize.</p>
+            </div>
+        </section>
+
+        <!-- Postman -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">📮 <a href="https://www.postman.com/downloads/" target="_blank" rel="noopener">Postman</a></h2><span class="tag">API testing</span></div>
+            <div class="card-body">
+                <p>The most popular API testing client. A ready collection ships with this repo.</p>
+                <p class="howto">How to use it here:</p>
+                <p>• <strong>Import</strong> <code>postman/QA-Training-Lab.postman_collection.json</code> and the environment in the same folder.<br>
+                   • Set the environment <code>baseUrl</code> to <code>http://localhost:3000</code>.<br>
+                   • Add a header <code>X-QA-Level: low</code> (Collection → … → Edit → Headers) to test a whole run at one level, then change it and re-run for regression.</p>
+            </div>
+        </section>
+
+        <!-- Newman -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">🏃 <a href="https://github.com/postmanlabs/newman" target="_blank" rel="noopener">Newman</a></h2><span class="tag">Run Postman from CLI</span></div>
+            <div class="card-body">
+                <p>Runs a Postman collection from the command line — your first taste of automation/CI.</p>
+                <pre><code>npm install -g newman
+newman run postman/QA-Training-Lab.postman_collection.json \
+  -e postman/QA-Lab-Local.postman_environment.json \
+  --env-var "qaLevel=medium"</code></pre>
+                <p class="howto">How to use it here:</p>
+                <p>Run the collection at each level and compare which requests change — instant regression evidence.</p>
+            </div>
+        </section>
+
+        <!-- curl -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">⌨️ <a href="https://curl.se/" target="_blank" rel="noopener">curl</a></h2><span class="tag">Quick API checks · pre-installed</span></div>
+            <div class="card-body">
+                <p>Already on macOS/Linux. Perfect for fast, repeatable one-liners in a bug report.</p>
+                <pre><code># Log in and grab a token
+TOKEN=$(curl -s localhost:3000/api/auth/login -H "Content-Type: application/json" \
+  -d '{"email":"user@qalab.com","password":"User@1234"}' | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+
+# Reproduce the "quantity 0 accepted" defect at Low
+curl -i localhost:3000/api/cart/add -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" -H "X-QA-Level: low" \
+  -d '{"productId":"PASTE_ID","quantity":0}'</code></pre>
+                <p class="howto">How to use it here:</p>
+                <p>Paste the exact command + response into your bug report's Steps/Evidence.</p>
+            </div>
+        </section>
+
+        <!-- jq -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">🔎 <a href="https://jqlang.github.io/jq/" target="_blank" rel="noopener">jq</a></h2><span class="tag">Read JSON responses</span></div>
+            <div class="card-body">
+                <p>Pretty-prints and filters JSON so big responses are readable.</p>
+                <pre><code>curl -s localhost:3000/api/products | jq '.[].name'           # list product names
+curl -s localhost:3000/api/products -H "X-QA-Level: low" | jq 'length'</code></pre>
+                <p class="howto">How to use it here:</p>
+                <p>Quickly check things like "does the list still include the inactive 'Webcam HD' product?" at each level.</p>
+            </div>
+        </section>
+
+        <!-- Reporting templates -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">📝 <a href="/pages/reporting.html">Reporting Templates</a></h2><span class="tag">Document your findings</span></div>
+            <div class="card-body">
+                <p>Bug report, test case, and test summary templates (also in the repo's <code>templates/</code> folder).</p>
+                <p class="howto">How to use it here:</p>
+                <p>Download from the <a href="/pages/reporting.html">Reporting Guide</a>, fill one in per defect, and confirm the <em>Expected Result</em> against the Stable level.</p>
+            </div>
+        </section>
+
+        <!-- VS Code / Compass (optional) -->
+        <section class="card tool">
+            <div class="card-header"><h2 class="card-title">🛠️ Optional extras</h2><span class="tag">Nice to have</span></div>
+            <div class="card-body">
+                <p>• <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">VS Code</a> — read the source and keep your test notes. The level logic lives in <code>src/lab/behaviors.js</code>.<br>
+                   • <a href="https://www.mongodb.com/products/compass" target="_blank" rel="noopener">MongoDB Compass</a> — only if you set a real <code>MONGODB_URI</code>; inspect the data your tests create.<br>
+                   • <a href="https://hoppscotch.io/" target="_blank" rel="noopener">Hoppscotch</a> — a free, browser-based alternative to Postman.</p>
+            </div>
+        </section>
+
+        <div class="card" style="margin-bottom:2rem;">
+            <div class="card-body" style="text-align:center;">
+                <p style="color:var(--text-secondary);">New here? Start with the ordered learning path.</p>
+                <a href="/pages/curriculum.html" class="btn btn-primary">Open the Curriculum</a>
+                <a href="/pages/reporting.html" class="btn btn-outline">Reporting Guide</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/qalevel.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>App.init();</script>
+</body>
+</html>

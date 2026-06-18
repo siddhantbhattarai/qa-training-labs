@@ -107,6 +107,15 @@ bug report (MD/CSV), test cases (CSV), test summary (MD).
 
 ---
 
+## 🧰 Tools you'll use
+
+New to QA tooling? The **[Tools You'll Use guide](TOOLS-GUIDE.md)** (also in-app at
+`/pages/tools.html`) has clickable links and **how-to-use-it-for-this-lab** notes
+for: Browser DevTools, the built-in difficulty switcher, Swagger UI, Postman,
+Newman, curl, jq, and the reporting templates.
+
+---
+
 ## 🔌 Setting the level per request (API testers)
 
 ```bash
