@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Interview Questions - QA Training Lab</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .iv-controls{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
+        .iv-search{flex:1;min-width:200px;background:#0f172a;border:1px solid var(--border);border-radius:8px;color:#e2e8f0;padding:.55rem .8rem;font-size:.9rem}
+        .chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+        .chip{cursor:pointer;font-size:.78rem;font-weight:600;padding:.35rem .7rem;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text-secondary);user-select:none}
+        .chip.active{background:#6366f1;border-color:#6366f1;color:#fff}
+        .qitem{border:1px solid var(--border);border-radius:10px;margin-bottom:.6rem;overflow:hidden;background:rgba(255,255,255,.02)}
+        .qhead{display:flex;gap:.6rem;align-items:flex-start;padding:.8rem 1rem;cursor:pointer}
+        .qhead:hover{background:rgba(255,255,255,.04)}
+        .qnum{flex:0 0 auto;width:26px;height:26px;border-radius:6px;background:var(--bg-dark);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--text-secondary)}
+        .qtext{flex:1;font-weight:600}
+        .qcat{flex:0 0 auto;font-size:.66rem;font-weight:700;padding:1px 7px;border-radius:8px;background:var(--bg-dark);border:1px solid var(--border);color:var(--text-secondary)}
+        .qarrow{flex:0 0 auto;color:var(--text-secondary);transition:transform .15s}
+        .qitem.open .qarrow{transform:rotate(90deg)}
+        .qans{display:none;padding:0 1rem 1rem 2.6rem;color:var(--text-secondary);line-height:1.65}
+        .qitem.open .qans{display:block}
+        .iv-count{color:var(--text-secondary);font-size:.85rem;margin-left:auto}
+        .btn-xs{font-size:.78rem;padding:.4rem .7rem}
+    </style>
+</head>
+<body>
+        <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🧪</span>
+            <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pages/curriculum.html" class="nav-link">Curriculum</a>
+            <a href="/pages/tools.html" class="nav-link">Tools</a>
+            <a href="/pages/interview.html" class="nav-link active">Interview</a>
+            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/pages/products.html" class="nav-link">Products</a>
+            <a href="/pages/cart.html" class="nav-link">Cart</a>
+            <a href="/pages/orders.html" class="nav-link">Orders</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
+            <a href="/pages/reporting.html" class="nav-link">Reporting</a>
+            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+        <div class="nav-auth" id="navAuth"></div>
+    </nav>
+
+    <main class="page-container" style="max-width: 920px;">
+        <div class="dashboard-header">
+            <h1>🎤 QA Interview Questions &amp; Answers</h1>
+            <p>The must-know questions every QA should be ready for. Click a question to reveal the answer. Filter by topic or search.</p>
+        </div>
+
+        <div class="iv-controls">
+            <input id="ivSearch" class="iv-search" type="search" placeholder="🔎 Search questions & answers…">
+            <button class="btn btn-outline btn-xs" id="revealAll">Reveal all</button>
+            <button class="btn btn-outline btn-xs" id="hideAll">Hide all</button>
+            <span class="iv-count" id="ivCount"></span>
+        </div>
+        <div class="chips" id="ivChips"></div>
+
+        <div id="ivList"></div>
+        <p style="color:var(--text-secondary);text-align:center;margin:1.5rem 0 2rem;">
+            Want the printable version? See <code>INTERVIEW-QUESTIONS.md</code> in the repo.
+        </p>
+    </main>
+
+    <script src="/js/qalevel.js"></script>
+    <script src="/js/interview-data.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        App.init();
+        const DATA = window.INTERVIEW_QUESTIONS || [];
+        const cats = ['All', ...Array.from(new Set(DATA.map(q => q.c)))];
+        let activeCat = 'All';
+        let term = '';
+
+        const listEl = document.getElementById('ivList');
+        const chipsEl = document.getElementById('ivChips');
+        const countEl = document.getElementById('ivCount');
+
+        function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function hl(s){ if(!term) return esc(s); const re = new RegExp('('+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'); return esc(s).replace(re,'<mark>$1</mark>'); }
+
+        function render(){
+            const t = term.toLowerCase();
+            const rows = DATA.filter(q =>
+                (activeCat === 'All' || q.c === activeCat) &&
+                (!t || q.q.toLowerCase().includes(t) || q.a.toLowerCase().includes(t))
+            );
+            countEl.textContent = rows.length + ' / ' + DATA.length + ' questions';
+            listEl.innerHTML = rows.map((q) => {
+                const n = DATA.indexOf(q) + 1;
+                return `<div class="qitem">
+                    <div class="qhead" onclick="this.parentNode.classList.toggle('open')">
+                        <span class="qnum">${n}</span>
+                        <span class="qtext">${hl(q.q)}</span>
+                        <span class="qcat">${esc(q.c)}</span>
+                        <span class="qarrow">▶</span>
+                    </div>
+                    <div class="qans">${hl(q.a)}</div>
+                </div>`;
+            }).join('') || '<p style="color:var(--text-secondary)">No questions match your search.</p>';
+        }
+
+        chipsEl.innerHTML = cats.map(c => `<span class="chip${c==='All'?' active':''}" data-cat="${c}">${c}</span>`).join('');
+        chipsEl.addEventListener('click', e => {
+            const chip = e.target.closest('.chip'); if(!chip) return;
+            activeCat = chip.dataset.cat;
+            [...chipsEl.children].forEach(ch => ch.classList.toggle('active', ch === chip));
+            render();
+        });
+        document.getElementById('ivSearch').addEventListener('input', e => { term = e.target.value.trim(); render(); });
+        document.getElementById('revealAll').addEventListener('click', () => listEl.querySelectorAll('.qitem').forEach(i => i.classList.add('open')));
+        document.getElementById('hideAll').addEventListener('click', () => listEl.querySelectorAll('.qitem').forEach(i => i.classList.remove('open')));
+
+        render();
+    </script>
+</body>
+</html>

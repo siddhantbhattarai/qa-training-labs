@@ -93,6 +93,7 @@
     const wanted = [
       { href: "/pages/curriculum.html", text: "Curriculum" },
       { href: "/pages/tools.html", text: "Tools" },
+      { href: "/pages/interview.html", text: "Interview" },
       { href: "/pages/reporting.html", text: "Reporting" },
     ];
     wanted.forEach((w) => {
