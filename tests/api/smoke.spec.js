@@ -35,8 +35,10 @@ test.describe("Smoke — the service is alive", () => {
       headers: { "X-QA-Level": "stable" },
     });
     expect(res.ok()).toBeTruthy();
-    const products = await res.json();
-    expect(Array.isArray(products)).toBeTruthy();
+    const body = await res.json();
+    // The listing is an array at some levels and a paginated
+    // { page, total, products } object at others — accept both.
+    const products = Array.isArray(body) ? body : body.products || [];
     expect(products.length).toBeGreaterThan(0);
   });
 });

@@ -49,7 +49,9 @@ module.exports = defineConfig({
   webServer: process.env.BASE_URL
     ? undefined
     : {
-        command: "npm start",
+        // Launch with node directly (not "npm start") so it works anywhere
+        // node is available, without depending on npm being on PATH.
+        command: "node src/server.js",
         url: "http://localhost:3000/api/health",
         reuseExistingServer: !process.env.CI,
         timeout: 60_000,
