@@ -84,9 +84,12 @@ const Auth = {
     },
     
     updateNavigation() {
+        // Learn-zone pages show a "Start Training" CTA (rendered by nav.js)
+        // instead of the login/logout controls — leave their nav untouched.
+        if (document.body.dataset.zone !== 'lab') return;
         const navAuth = document.getElementById('navAuth');
         if (!navAuth) return;
-        
+
         if (this.isAuthenticated()) {
             const user = this.getUser();
             navAuth.innerHTML = `

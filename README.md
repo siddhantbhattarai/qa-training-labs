@@ -164,8 +164,23 @@ The difficulty logic lives in **one place** so it's easy to read and extend:
 | `src/lab/behaviors.js` | **Single source of truth** — how every defect behaves at each level. |
 | `src/lab/seedData.js` | Shared seed + the 24h auto-reset. |
 | `src/routes/*.js` | Thin handlers that call a behaviour helper with `req.qaLevel`. |
-| `public/js/qalevel.js` | Front-end level switcher + nav. |
+| `public/js/nav.js` | **Two-zone navigation** — renders the right navbar per page. |
+| `public/js/qalevel.js` | Front-end level switcher (lab pages only). |
 | `SOLUTIONS/` | Instructor answer keys (matrix + per-level). |
+
+### Two zones (learn vs. practice)
+
+The site is deliberately split so the reading material and the app-under-test
+never get tangled together. Each page declares its zone with
+`<body data-zone="…">` and `public/js/nav.js` renders the matching navbar:
+
+| Zone | `data-zone` | Pages | Navbar |
+|------|-------------|-------|--------|
+| 📚 **Learn** (notes & guidance) | `learn` | home, curriculum, guide, tools, interview, reporting, checklist, templates, scenarios, bug hunt | learning links + a **Start Training ▶** button |
+| 🧪 **Practice** (the testing site) | `lab` | login, register, dashboard, products, cart, orders, profile | app links + difficulty switcher + auth, with a **← Learning Hub** link back |
+
+**Start Training** sends the student to `/pages/login.html`, so a practice
+session always begins by signing in (demo accounts are on the login page).
 
 **Add a new level-aware defect:** add a helper to `behaviors.js` that branches on
 the level, call it from the route, and document it in `SOLUTIONS/`. Done.

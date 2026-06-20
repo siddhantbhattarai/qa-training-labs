@@ -47,6 +47,9 @@
   }
 
   function injectSwitcher() {
+    // The difficulty switch only makes sense inside the practice lab — the
+    // notes/guidance pages are static, so we never show it there.
+    if (document.body.dataset.zone !== "lab") return;
     const navbar = document.querySelector(".navbar");
     if (!navbar || document.getElementById("qaLevelSwitcher")) return;
 
@@ -85,34 +88,10 @@
     });
   }
 
-  // Make the new learning pages reachable from every page's nav without
-  // having to hand-edit each navbar.
-  function ensureNavLinks() {
-    const links = document.querySelector(".nav-links");
-    if (!links) return;
-    const wanted = [
-      { href: "/pages/curriculum.html", text: "Curriculum" },
-      { href: "/pages/tools.html", text: "Tools" },
-      { href: "/pages/interview.html", text: "Interview" },
-      { href: "/pages/reporting.html", text: "Reporting" },
-    ];
-    wanted.forEach((w) => {
-      if (links.querySelector(`a[href="${w.href}"]`)) return;
-      const a = document.createElement("a");
-      a.href = w.href;
-      a.className = "nav-link";
-      a.textContent = w.text;
-      if (window.location.pathname === w.href) a.classList.add("active");
-      // Insert before the "API Docs" link if present, else append.
-      const apiDocs = links.querySelector('a[href="/api/docs"]');
-      if (apiDocs) links.insertBefore(a, apiDocs);
-      else links.appendChild(a);
-    });
-  }
-
+  // Nav links are now owned centrally by nav.js (two-zone navigation), so
+  // qalevel.js only needs to add the difficulty switcher on lab pages.
   function boot() {
     injectSwitcher();
-    ensureNavLinks();
   }
 
   if (document.readyState === "loading") {

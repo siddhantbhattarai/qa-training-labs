@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-                <nav class="navbar">
+<body data-zone="learn">
+    <nav class="navbar">
         <div class="nav-brand">
             <span class="logo">🧪</span>
             <a href="/" class="brand-text" style="text-decoration: none;">QA Training Lab</a>
@@ -18,17 +18,15 @@
         <div class="nav-links">
             <a href="/" class="nav-link active">Home</a>
             <a href="/pages/curriculum.html" class="nav-link">Curriculum</a>
+            <a href="/pages/guide.html" class="nav-link">Guide</a>
             <a href="/pages/tools.html" class="nav-link">Tools</a>
             <a href="/pages/interview.html" class="nav-link">Interview</a>
-            <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
-            <a href="/pages/products.html" class="nav-link">Products</a>
-            <a href="/pages/cart.html" class="nav-link">Cart</a>
-            <a href="/pages/orders.html" class="nav-link">Orders</a>
-            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
             <a href="/pages/reporting.html" class="nav-link">Reporting</a>
-            <a href="/api/docs" class="nav-link" target="_blank">API Docs</a>
+            <a href="/pages/bugs.html" class="nav-link">Bug Hunt</a>
         </div>
-        <div class="nav-auth" id="navAuth"></div>
+        <div class="nav-auth" id="navAuth">
+            <a href="/pages/login.html" class="btn btn-primary nav-start-btn">Start Training ▶</a>
+        </div>
     </nav>
 
     <main>
@@ -36,8 +34,10 @@
             <div class="hero-content">
                 <h1>Learn QA Testing <span class="highlight">The Right Way</span></h1>
                 <p class="hero-subtitle">
-                    A free, hands-on training environment with intentionally buggy APIs. 
-                    Practice manual testing, API testing, and automation in a real-world scenario.
+                    A free, hands-on classroom for software testing. Read the
+                    <strong>notes &amp; guidance</strong> here, then jump into a
+                    real, intentionally-buggy <strong>practice app</strong> to hunt
+                    defects and write professional bug reports.
                 </p>
                 <div class="hero-stats">
                     <div class="stat">
@@ -54,8 +54,8 @@
                     </div>
                 </div>
                 <div class="hero-actions">
-                    <a href="/pages/curriculum.html" class="btn btn-primary btn-lg">Start Learning</a>
-                    <a href="/pages/reporting.html" class="btn btn-outline btn-lg">Reporting Guide</a>
+                    <a href="/pages/login.html" class="btn btn-primary btn-lg nav-start-btn">Start Training ▶</a>
+                    <a href="/pages/curriculum.html" class="btn btn-outline btn-lg">Browse Curriculum</a>
                 </div>
             </div>
             <div class="hero-visual">
@@ -67,12 +67,44 @@
                         <span class="window-title">test_api.py</span>
                     </div>
                     <pre class="code-content"><code><span class="keyword">def</span> <span class="function">test_login_without_password</span>():
-    response = requests.post(<span class="string">"/api/auth/login"</span>, 
+    response = requests.post(<span class="string">"/api/auth/login"</span>,
         json={<span class="string">"email"</span>: <span class="string">"test@example.com"</span>})
-    
+
     <span class="comment"># BUG: Should return 400, returns 500</span>
     <span class="keyword">assert</span> response.status_code == <span class="number">400</span>
     <span class="keyword">assert</span> <span class="string">"password required"</span> <span class="keyword">in</span> response.json()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- The big idea: two clearly separated areas -->
+        <section class="two-zones" style="padding: 4rem 2rem; max-width: 1100px; margin: 0 auto;">
+            <h2 class="section-title">Two parts, kept separate on purpose</h2>
+            <p style="text-align:center; color: var(--text-secondary); max-width: 720px; margin: -1rem auto 2.5rem;">
+                No more clutter: the learning material lives in one place, the app you test lives in another.
+            </p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Notes &amp; Guidance</h3>
+                    <p>Everything you read to learn — curriculum, how-to guides, tooling, reporting, interview prep and checklists. No login needed.</p>
+                    <ul class="feature-list">
+                        <li><a href="/pages/curriculum.html">Curriculum</a> — 7 modules, beginner → advanced</li>
+                        <li><a href="/pages/guide.html">QA Guide</a> &amp; <a href="/pages/tools.html">Tools You'll Use</a></li>
+                        <li><a href="/pages/reporting.html">Reporting Guide</a> &amp; <a href="/pages/test-cases.html">Templates</a></li>
+                        <li><a href="/pages/interview.html">Interview Q&amp;A</a> &amp; <a href="/pages/checklist.html">Checklists</a></li>
+                    </ul>
+                </div>
+                <div class="feature-card" style="border-color: rgba(99,102,241,0.5);">
+                    <div class="feature-icon">🧪</div>
+                    <h3>The Practice App (Testing Site)</h3>
+                    <p>A real e-commerce app seeded with intentional defects. This is where you actually test. It opens with a <strong>login</strong> and uses demo accounts.</p>
+                    <ul class="feature-list">
+                        <li>Products, Cart, Orders, Profile — the app under test</li>
+                        <li>Switch difficulty: Low → Medium → High → Stable</li>
+                        <li>Track findings in the <a href="/pages/bugs.html">Bug Hunt</a></li>
+                    </ul>
+                    <a href="/pages/login.html" class="btn btn-primary nav-start-btn" style="margin-top: 1rem;">Start Training ▶</a>
                 </div>
             </div>
         </section>
@@ -116,7 +148,7 @@
                 <div class="feature-card">
                     <div class="feature-icon">🐛</div>
                     <h3>Bug Hunting</h3>
-                    <p>Find real bugs in a controlled environment. Practice bug reporting and learn common vulnerability patterns.</p>
+                    <p>Find real bugs in a controlled environment. Practice bug reporting and learn common defect patterns.</p>
                     <ul class="feature-list">
                         <li>4 switchable difficulty levels</li>
                         <li>Bug severity classification</li>
@@ -128,136 +160,45 @@
         </section>
 
         <section class="learning-path">
-            <h2 class="section-title">Learning Path</h2>
+            <h2 class="section-title">How a training session works</h2>
             <div class="path-container">
                 <div class="path-step">
                     <div class="step-number">1</div>
-                    <h3>Setup & Basics</h3>
-                    <p>Create an account, explore the API documentation, and understand the application domain.</p>
+                    <h3>Read the guidance</h3>
+                    <p>Pick a module in the <a href="/pages/curriculum.html">Curriculum</a> — it tells you what to test and which difficulty level to use.</p>
                 </div>
                 <div class="path-connector"></div>
                 <div class="path-step">
                     <div class="step-number">2</div>
-                    <h3>Manual Exploration</h3>
-                    <p>Use the UI to manually test features. Try edge cases, invalid inputs, and unexpected workflows.</p>
+                    <h3>Start Training → log in</h3>
+                    <p>Click <strong>Start Training</strong>, sign in with a demo account, and you're inside the practice app.</p>
                 </div>
                 <div class="path-connector"></div>
                 <div class="path-step">
                     <div class="step-number">3</div>
-                    <h3>API Testing</h3>
-                    <p>Import Postman collection and test each endpoint. Validate responses and error handling.</p>
+                    <h3>Test the app</h3>
+                    <p>Exercise Products, Cart and Orders. Try edge cases, invalid input, and unexpected workflows.</p>
                 </div>
                 <div class="path-connector"></div>
                 <div class="path-step">
                     <div class="step-number">4</div>
-                    <h3>Bug Hunt</h3>
-                    <p>Use the Bug Hunt tracker to find and document all 58+ intentional bugs in the system.</p>
+                    <h3>Report defects</h3>
+                    <p>Log what you find in the <a href="/pages/bugs.html">Bug Hunt</a> and write it up with the <a href="/pages/reporting.html">Reporting Guide</a>.</p>
                 </div>
                 <div class="path-connector"></div>
                 <div class="path-step">
                     <div class="step-number">5</div>
-                    <h3>Automation</h3>
-                    <p>Write automated test scripts and integrate with CI/CD for continuous testing.</p>
+                    <h3>Compare to Stable</h3>
+                    <p>Switch to the <strong>Stable</strong> baseline to confirm the expected behaviour, then diff the buggy levels against it.</p>
                 </div>
-            </div>
-        </section>
-
-        <section class="api-preview">
-            <h2 class="section-title">API Endpoints Preview</h2>
-            <div class="api-grid">
-                <div class="api-card">
-                    <span class="method post">POST</span>
-                    <span class="endpoint">/api/auth/register</span>
-                    <p>Create a new user account</p>
-                </div>
-                <div class="api-card">
-                    <span class="method post">POST</span>
-                    <span class="endpoint">/api/auth/login</span>
-                    <p>Authenticate and get JWT token</p>
-                </div>
-                <div class="api-card">
-                    <span class="method get">GET</span>
-                    <span class="endpoint">/api/products</span>
-                    <p>List all products with pagination</p>
-                </div>
-                <div class="api-card">
-                    <span class="method post">POST</span>
-                    <span class="endpoint">/api/cart</span>
-                    <p>Add items to shopping cart</p>
-                </div>
-                <div class="api-card">
-                    <span class="method post">POST</span>
-                    <span class="endpoint">/api/orders</span>
-                    <p>Create order from cart</p>
-                </div>
-                <div class="api-card">
-                    <span class="method get">GET</span>
-                    <span class="endpoint">/api/users/profile</span>
-                    <p>Get current user profile</p>
-                </div>
-            </div>
-            <div class="api-cta">
-                <a href="/api/docs" class="btn btn-primary" target="_blank">View Full API Documentation</a>
-            </div>
-        </section>
-
-        <section class="tools-section">
-            <h2 class="section-title">Tools You'll Use</h2>
-            <div class="tools-grid">
-                <div class="tool-card">
-                    <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="Postman" class="tool-logo">
-                    <h3>Postman</h3>
-                    <p>API testing platform</p>
-                </div>
-                <div class="tool-card">
-                    <img src="https://www.vectorlogo.zone/logos/swagger/swagger-icon.svg" alt="Swagger" class="tool-logo">
-                    <h3>Swagger</h3>
-                    <p>Interactive API docs</p>
-                </div>
-                <div class="tool-card">
-                    <img src="https://www.vectorlogo.zone/logos/nodejs/nodejs-icon.svg" alt="Node.js" class="tool-logo">
-                    <h3>Node.js</h3>
-                    <p>Backend runtime</p>
-                </div>
-                <div class="tool-card">
-                    <img src="https://www.vectorlogo.zone/logos/mongodb/mongodb-icon.svg" alt="MongoDB" class="tool-logo">
-                    <h3>MongoDB</h3>
-                    <p>NoSQL database</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="resources-section" style="padding: 4rem 2rem; background: var(--bg-dark);">
-            <h2 class="section-title">Learning Resources</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto;">
-                <a href="/pages/test-scenarios.html" class="feature-card" style="text-decoration: none; transition: transform 0.2s;">
-                    <div class="feature-icon">📋</div>
-                    <h3>Test Scenarios</h3>
-                    <p>25+ hands-on exercises covering smoke, regression, functional, API, security, and performance testing.</p>
-                </a>
-                <a href="/pages/checklist.html" class="feature-card" style="text-decoration: none; transition: transform 0.2s;">
-                    <div class="feature-icon">✅</div>
-                    <h3>QA Checklists</h3>
-                    <p>Interactive checklists for smoke, functional, API, security, and UI testing with progress tracking.</p>
-                </a>
-                <a href="/pages/test-cases.html" class="feature-card" style="text-decoration: none; transition: transform 0.2s;">
-                    <div class="feature-icon">📝</div>
-                    <h3>Test Case Templates</h3>
-                    <p>Professional templates for test cases, bug reports, and test plans. Download CSV/TXT formats.</p>
-                </a>
-                <a href="/pages/bugs.html" class="feature-card" style="text-decoration: none; transition: transform 0.2s;">
-                    <div class="feature-icon">🐛</div>
-                    <h3>Bug Hunt Challenge</h3>
-                    <p>Find and track 58+ intentional bugs. Filter by category, severity, and track your progress.</p>
-                </a>
             </div>
         </section>
 
         <section class="cta-section">
             <div class="cta-content">
                 <h2>Ready to Start Your QA Journey?</h2>
-                <p>Join thousands of learners who are mastering software testing with hands-on practice.</p>
-                <a href="/pages/register.html" class="btn btn-primary btn-lg">Create Free Account</a>
+                <p>Read the notes, then jump into the practice app and start hunting defects.</p>
+                <a href="/pages/login.html" class="btn btn-primary btn-lg nav-start-btn">Start Training ▶</a>
             </div>
         </section>
     </main>
@@ -269,10 +210,16 @@
                 <span>QA Training Lab</span>
             </div>
             <div class="footer-links">
+                <strong style="color: var(--text-muted); font-size: 0.8rem;">Learn:</strong>
+                <a href="/pages/curriculum.html">Curriculum</a>
                 <a href="/pages/guide.html">Guide</a>
-                <a href="/pages/test-scenarios.html">Test Scenarios</a>
-                <a href="/pages/checklist.html">Checklists</a>
-                <a href="/pages/test-cases.html">Templates</a>
+                <a href="/pages/tools.html">Tools</a>
+                <a href="/pages/reporting.html">Reporting</a>
+                <a href="/pages/interview.html">Interview</a>
+            </div>
+            <div class="footer-links">
+                <strong style="color: var(--text-muted); font-size: 0.8rem;">Practice:</strong>
+                <a href="/pages/login.html">Start Training</a>
                 <a href="/pages/bugs.html">Bug Hunt</a>
                 <a href="/api/docs" target="_blank">API Docs</a>
             </div>
@@ -280,6 +227,7 @@
         </div>
     </footer>
 
+    <script src="/js/nav.js"></script>
     <script src="/js/qalevel.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>

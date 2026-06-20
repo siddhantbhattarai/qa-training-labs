@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body data-zone="learn">
                 <nav class="navbar">
         <div class="nav-brand">
             <span class="logo">🧪</span>
@@ -64,7 +64,7 @@
                     Register a new user account or use the demo credentials:
                 </p>
                 <ul style="color: var(--text-secondary); padding-left: 1.5rem; margin-bottom: 1rem;">
-                    <li><strong>User:</strong> john@example.com / Password123</li>
+                    <li><strong>User:</strong> user@qalab.com / User@1234</li>
                     <li><strong>Admin:</strong> admin@qalab.com / Admin@1234</li>
                 </ul>
 
@@ -187,15 +187,15 @@
                 <pre style="background: var(--bg-dark); padding: 1rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.85rem;"><code># Valid login
 POST /api/auth/login
 {
-    "email": "john@example.com",
-    "password": "Password123"
+    "email": "user@qalab.com",
+    "password": "User@1234"
 }
 # Expected: 200 with accessToken
 
 # Invalid password
 POST /api/auth/login
 {
-    "email": "john@example.com",
+    "email": "user@qalab.com",
     "password": "wrongpassword"
 }
 # Expected: 401 Unauthorized
@@ -223,7 +223,7 @@ class TestAuth:
         response = requests.post(f"{BASE_URL}/auth/register", json={
             "name": "Test User",
             "email": "test@example.com",
-            "password": "Password123"
+            "password": "User@1234"
         })
         assert response.status_code == 201
         assert "accessToken" in response.json()
@@ -301,7 +301,7 @@ describe('Products API', () => {
 
                     <p style="margin-bottom: 0.5rem;"><strong style="color: var(--primary);">Steps to Reproduce:</strong></p>
                     <ol style="color: var(--text-secondary); padding-left: 1.5rem; margin-bottom: 1rem;">
-                        <li>Login as user john@example.com</li>
+                        <li>Login as user user@qalab.com</li>
                         <li>Send POST to /api/cart with {"productId": "...", "quantity": -5}</li>
                         <li>Observe the response</li>
                     </ol>
@@ -356,6 +356,8 @@ describe('Products API', () => {
             <p class="footer-text">Built for QA learners. 100% free and open source.</p>
         </div>
     </footer>
+
+    <script src="/js/nav.js"></script>
 
     <script src="/js/qalevel.js"></script>
     <script src="/js/api.js"></script>
