@@ -28,6 +28,12 @@ build/
 # Coverage
 coverage/
 
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+
 # Temporary files
 tmp/
 temp/

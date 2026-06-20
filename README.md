@@ -85,7 +85,7 @@ Copy `.env.example` to `.env` only if you want to change defaults:
 
 ## 🎓 Learn in order
 
-Follow the **[Curriculum](public/pages/curriculum.html)** (7 modules, beginner → advanced):
+Follow the **[Curriculum](public/pages/curriculum.html)** (8 modules, beginner → advanced):
 
 1. Foundations & Smoke Testing — *Low*
 2. Functional Testing & Bug Hunting — *Low*
@@ -94,6 +94,7 @@ Follow the **[Curriculum](public/pages/curriculum.html)** (7 modules, beginner �
 5. Business-Logic & Exploratory Testing — *High*
 6. Regression Testing with the Stable baseline — *High vs Stable*
 7. Reporting & Test Summary — *all levels*
+8. **Automation & CI** — *Low → Stable* (a real, runnable Playwright suite — see [`tests/`](tests/))
 
 Each module says which level to set, what to test, and what to hand in.
 
@@ -111,6 +112,30 @@ bug report (MD/CSV), test cases (CSV), test summary (MD).
 
 > 🔑 Killer trick: write your **"Expected Result"** by running the same steps at
 > `X-QA-Level: stable`. Whatever the reference build does *is* the expected result.
+
+---
+
+## 🤖 Automation & CI
+
+When you're ready to stop testing by hand, **Module 8** is a real, runnable
+automation suite in **[`tests/`](tests/)** — one **Playwright** framework for both
+API and end-to-end browser tests, plus a **GitHub Actions** workflow that runs it
+on every push.
+
+```bash
+npm install && npx playwright install chromium
+npm test            # auto-starts the lab, runs API + E2E
+npm run test:smoke  # quick API smoke checks
+
+# point it at the live demo (or any deploy) instead of localhost:
+BASE_URL=https://qa-training-labs.onrender.com npm run test:smoke
+```
+
+The centerpiece, `tests/api/defect-detection.spec.js`, asserts the **correct**
+(Stable) behaviour and runs it at *every* difficulty level — marking the buggy
+levels `test.fail()`, exactly how a regression suite encodes "known bug here,
+expected fixed there." Full walkthrough and exercises in
+**[`tests/README.md`](tests/README.md)**.
 
 ---
 

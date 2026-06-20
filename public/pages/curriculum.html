@@ -160,6 +160,22 @@
             </div>
         </section>
 
+        <!-- MODULE 8 -->
+        <section class="card mod">
+            <div class="card-header"><span class="step-num">8</span><h2 class="card-title" style="margin:0;">Automation &amp; CI</h2><span class="lvl lvl-stable">LOW → STABLE</span></div>
+            <div class="card-body">
+                <p style="color:var(--text-secondary);">Stop testing by hand — encode your tests as code and let CI run them on every change. This module ships as a real, runnable suite in the repo.</p>
+                <ul>
+                    <li>Set up <strong>Playwright</strong> — one framework for both <strong>API</strong> and <strong>E2E browser</strong> tests: <code>npm install &amp;&amp; npx playwright install chromium</code>, then <code>npm test</code>.</li>
+                    <li>Read <a href="https://github.com/siddhantbhattarai/qa-training-labs/blob/Development/tests/README.md" target="_blank">tests/README.md</a> and study <code>tests/api/defect-detection.spec.js</code> — it asserts the <em>correct</em> (Stable) behaviour and runs it at every level, marking buggy levels <code>test.fail()</code>. That's a regression suite in miniature.</li>
+                    <li>Run the same suite against the <strong>live demo</strong>, not just localhost: <code>BASE_URL=https://qa-training-labs.onrender.com npm run test:smoke</code>.</li>
+                    <li>Run the Postman collection headless with <strong>Newman</strong>: <code>npm run test:postman</code>.</li>
+                    <li>See it in <strong>CI</strong>: <code>.github/workflows/ci.yml</code> runs the whole suite on every push and uploads the report.</li>
+                    <li><strong>Deliverable:</strong> add one new API test and one new E2E test (see the exercises in <code>tests/README.md</code>) and get them passing in CI.</li>
+                </ul>
+            </div>
+        </section>
+
         <div class="card" style="margin-bottom:2rem;">
             <div class="card-body" style="text-align:center;">
                 <p style="color:var(--text-secondary);">Ready? Set the level to <span class="lvl lvl-low">LOW</span> in the top bar and start Module 1.</p>
