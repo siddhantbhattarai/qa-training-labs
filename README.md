@@ -79,7 +79,7 @@ demo data, and runs at <http://localhost:3000>.
 Copy `.env.example` to `.env` only if you want to change defaults:
 - **`MONGODB_URI`** — set it to use a real/Atlas MongoDB (data then persists). Leave blank for in-memory.
 - **`AUTO_RESET_HOURS`** — the lab wipes test data and re-seeds fresh every N hours (default **24**, `0` to disable). Keeps a shared classroom clean.
-- **`JWT_SECRET` / `JWT_REFRESH_SECRET`** — safe dev fallbacks are built in; override for anything real.
+- **`JWT_SECRET` / `JWT_REFRESH_SECRET`** — dev fallbacks are built in for local use; **required** in production (the app refuses to start with `NODE_ENV=production` unless you set your own). See [Security & secrets](#-security--secrets-please-read-before-deploying).
 
 ---
 
@@ -251,6 +251,27 @@ Works on any Node host. For a persistent DB set `MONGODB_URI` (e.g. MongoDB
 Atlas free tier) and a `JWT_SECRET`; otherwise it runs in zero-config in-memory
 mode (data resets on restart, and every `AUTO_RESET_HOURS`). Build: `npm install`,
 start: `npm start`.
+
+---
+
+## 🔐 Security & secrets (please read before deploying)
+
+This repo contains **no real secrets** — but it does contain *intentional* test
+data and *intentional* defects. Don't mistake them for leaks:
+
+- **Demo accounts are public on purpose.** `admin@qalab.com / Admin@1234`,
+  `user@qalab.com / User@1234` (in `.env.example`, the seed, and the Postman
+  env) are throwaway lab logins — that's seed data, not a credential leak.
+- **At `level=low` the app deliberately exposes data.** For example it returns
+  the bcrypt password hash and refresh token in a user object (see
+  `src/lab/behaviors.js`, `serializeUser`). These are **teaching defects** a
+  student is meant to *find and report* — they do not occur at `high`/`stable`.
+- **JWT signing keys must be real in production.** The built-in
+  `qa-lab-dev-…-change-me-please` values are public dev fallbacks. When
+  `NODE_ENV=production`, the app **refuses to start** unless `JWT_SECRET` and
+  `JWT_REFRESH_SECRET` are set to your own strong, secret values — so a real
+  deployment can never run on a forgeable, publicly-known key. Set them in your
+  host's environment (e.g. Render dashboard) before deploying.
 
 ---
 

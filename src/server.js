@@ -1,10 +1,39 @@
 require("dotenv").config();
 
-// Zero-config safety net: provide dev fallbacks so `npm start` works with no
-// .env at all. Override these in .env / your host for anything real.
-process.env.JWT_SECRET = process.env.JWT_SECRET || "qa-lab-dev-access-secret-change-me-please";
+// These are PUBLIC dev fallbacks (they live in the repo). They keep the
+// zero-config lab runnable with no .env, but anything signed with them is
+// forgeable by anyone. They must NEVER be used by a real deployment.
+const DEV_JWT_SECRET = "qa-lab-dev-access-secret-change-me-please";
+const DEV_JWT_REFRESH_SECRET = "qa-lab-dev-refresh-secret-change-me-please";
+
+// In production, refuse to boot on a missing or publicly-known signing key
+// instead of silently falling back to one anyone could forge tokens against.
+if (process.env.NODE_ENV === "production") {
+  const offenders = [];
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === DEV_JWT_SECRET) {
+    offenders.push("JWT_SECRET");
+  }
+  if (
+    !process.env.JWT_REFRESH_SECRET ||
+    process.env.JWT_REFRESH_SECRET === DEV_JWT_REFRESH_SECRET
+  ) {
+    offenders.push("JWT_REFRESH_SECRET");
+  }
+  if (offenders.length) {
+    console.error(
+      `\n❌ Refusing to start in production: ${offenders.join(" and ")} ` +
+        `must be set to a strong, secret value (not the public dev fallback).\n` +
+        `   Set them in your host's environment, then redeploy.\n`
+    );
+    process.exit(1);
+  }
+}
+
+// Zero-config safety net for local/dev only: provide dev fallbacks so
+// `npm start` works with no .env at all. Override these for anything real.
+process.env.JWT_SECRET = process.env.JWT_SECRET || DEV_JWT_SECRET;
 process.env.JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET || "qa-lab-dev-refresh-secret-change-me-please";
+  process.env.JWT_REFRESH_SECRET || DEV_JWT_REFRESH_SECRET;
 process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
 process.env.JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
 
